@@ -5,100 +5,202 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Launcher TBR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+  /* Charte reprise de l'interface Viewer PLU / PLUi (_viewer_ui.html) */
   :root{
-    --bg:#f4f5f7; --panel:#ffffff; --ink:#1c2230; --ink-soft:#5b6478;
-    --line:#dde1e8; --accent:#2f5d8a; --ok-bg:#e8f5ec; --ok-line:#8fc6a4; --ok-ink:#1e6b3d;
-    --shadow:0 1px 2px rgba(20,28,45,.06), 0 8px 24px rgba(20,28,45,.06);
-    --radius:12px;
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#12151b; --panel:#1a1f27; --ink:#e8ecf2; --ink-soft:#9aa4b6;
-      --line:#2b323d; --accent:#7aa8d4; --ok-bg:#16301f; --ok-line:#2f6b45; --ok-ink:#8ddba8;
-      --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
-    }
+    --t:#1B8799;--t-dk:#136475;--t-lt:#e6f5f8;--t-mid:#c4e5ec;
+    --bg:#F4F6FB;--s:#fff;--s2:#F0F3FA;--s3:#E6EAF5;
+    --bd:#E2E6F0;--bd2:#CDD3E8;
+    --tx:#16202E;--tx2:#4B5875;--tx3:#8FA0B8;
+    --green:#15803d;--gbg:#ecfdf5;--gbd:#bbf7d0;
+    --amber:#b45309;--abg:#fffbeb;
+    --sh:0 1px 3px rgba(0,0,0,.05),0 6px 20px rgba(0,0,0,.05);
+    --r:14px;--rsm:10px;--rxs:7px;
+    --f:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --m:'DM Mono','Cascadia Code',Consolas,monospace;
   }
   *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
   body{
-    margin:0; background:var(--bg); color:var(--ink);
-    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    -webkit-font-smoothing:antialiased;
+    margin:0;background:var(--bg);color:var(--tx);font-family:var(--f);
+    font-size:15px;line-height:1.55;font-weight:400;-webkit-font-smoothing:antialiased;
   }
-  .wrap{max-width:920px; margin:0 auto; padding:32px 20px 64px}
-  header{display:flex; align-items:center; gap:14px; margin-bottom:8px; flex-wrap:wrap}
+  .wrap{max-width:1060px;margin:0 auto;padding:28px 20px 64px}
+
+  /* ---------- En-tete ---------- */
+  header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:22px}
   .logo{
-    width:44px; height:44px; border-radius:10px; flex:0 0 auto;
-    background:var(--accent); color:#fff; display:grid; place-items:center;
-    font-weight:700; letter-spacing:.5px; font-size:15px;
+    width:46px;height:46px;border-radius:var(--rsm);flex:0 0 auto;background:var(--t);
+    color:#fff;display:grid;place-items:center;font-weight:600;font-size:15px;letter-spacing:.06em;
   }
-  h1{font-size:1.5rem; margin:0; letter-spacing:-.01em}
-  .sub{color:var(--ink-soft); font-size:.92rem; margin:2px 0 0}
+  h1{font-size:1.32rem;margin:0;font-weight:600;letter-spacing:-.01em}
+  .sub{color:var(--tx2);font-size:.9rem;margin:1px 0 0}
   .badge{
-    display:inline-block; margin-left:auto; font-size:.72rem; font-weight:600;
-    text-transform:uppercase; letter-spacing:.08em; padding:5px 10px; border-radius:999px;
-    background:var(--panel); border:1px solid var(--line); color:var(--ink-soft);
+    margin-left:auto;font-size:.7rem;font-weight:500;text-transform:uppercase;
+    letter-spacing:.09em;padding:5px 11px;border-radius:999px;
+    background:var(--t-lt);border:1px solid var(--t-mid);color:var(--t-dk);
   }
+
+  /* ---------- Bandeau d'information ---------- */
+  .info{
+    background:var(--gbg);border:1px solid var(--gbd);border-radius:var(--r);
+    padding:14px 18px;margin-bottom:20px;font-size:.9rem;color:var(--tx2);
+    display:flex;gap:12px;align-items:flex-start;
+  }
+  .info svg{flex:0 0 auto;margin-top:2px;color:var(--green)}
+  .info strong{color:var(--tx);font-weight:500}
+
+  /* ---------- Barre d'outils ---------- */
+  .barre{
+    display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;
+  }
+  .recherche{position:relative;flex:1 1 240px;min-width:200px}
+  .recherche svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--tx3)}
+  .recherche input{
+    width:100%;font-family:var(--f);font-size:.92rem;color:var(--tx);
+    padding:10px 12px 10px 36px;border:1px solid var(--bd);border-radius:var(--rsm);
+    background:var(--s);outline:none;
+  }
+  .recherche input:focus{border-color:var(--t);box-shadow:0 0 0 3px var(--t-lt)}
+  .recherche input::placeholder{color:var(--tx3)}
+
+  .filtres{display:flex;gap:6px;flex-wrap:wrap}
+  .filtre{
+    font-family:var(--f);font-size:.85rem;font-weight:500;cursor:pointer;
+    padding:8px 13px;border-radius:999px;border:1px solid var(--bd);
+    background:var(--s);color:var(--tx2);
+  }
+  .filtre:hover{border-color:var(--bd2);color:var(--tx)}
+  .filtre[aria-pressed="true"]{background:var(--t);border-color:var(--t);color:#fff}
+
+  .vues{display:flex;gap:2px;background:var(--s2);border:1px solid var(--bd);border-radius:var(--rsm);padding:3px}
+  .vue{
+    display:grid;place-items:center;width:34px;height:30px;cursor:pointer;
+    border:0;background:transparent;border-radius:var(--rxs);color:var(--tx3);
+  }
+  .vue:hover{color:var(--tx2);background:var(--s3)}
+  .vue[aria-pressed="true"]{background:var(--s);color:var(--t);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+
+  /* ---------- Groupes par categorie ---------- */
+  .groupe{margin-bottom:26px}
+  .groupe-titre{
+    font-size:.73rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;
+    color:var(--tx3);margin:0 0 10px;display:flex;align-items:center;gap:10px;
+  }
+  .groupe-titre::after{content:"";flex:1;height:1px;background:var(--bd)}
+
+  /* ---------- Vue CARTES ---------- */
+  .vue-cartes .liste{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:12px}
+  .vue-cartes .outil{
+    background:var(--s);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);
+    padding:16px 18px;display:flex;flex-direction:column;gap:8px;min-height:150px;
+  }
+  .vue-cartes .ico{color:var(--t)}
+  .vue-cartes .nom{font-size:.98rem;font-weight:500;margin:0}
+  .vue-cartes .desc{font-size:.83rem;color:var(--tx2);margin:0;flex:1}
+  .vue-cartes .action{margin-top:4px}
+
+  /* ---------- Vue ICONES ---------- */
+  .vue-icones .liste{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px}
+  .vue-icones .outil{
+    background:var(--s);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);
+    padding:18px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;
+  }
+  .vue-icones .ico{color:var(--t)}
+  .vue-icones .nom{font-size:.85rem;font-weight:500;margin:0;line-height:1.3}
+  .vue-icones .desc{display:none}
+  .vue-icones a.action,.vue-icones span.action{font-size:.78rem;padding:6px 12px}
+
+  /* ---------- Vue LISTE ---------- */
+  .vue-liste .liste{
+    display:flex;flex-direction:column;background:var(--s);
+    border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;
+  }
+  .vue-liste .outil{
+    display:flex;align-items:center;gap:14px;padding:11px 16px;border-top:1px solid var(--bd);
+  }
+  .vue-liste .liste .outil:first-child{border-top:0}
+  .vue-liste .ico{color:var(--t);flex:0 0 auto}
+  .vue-liste .nom{font-size:.92rem;font-weight:500;margin:0;flex:0 0 auto;min-width:150px}
+  .vue-liste .desc{font-size:.82rem;color:var(--tx3);margin:0;flex:1;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .vue-liste .action{flex:0 0 auto}
+  @media (max-width:620px){
+    .vue-liste .desc{display:none}
+    .vue-liste .nom{min-width:0;flex:1}
+  }
+
+  /* ---------- Boutons d'action ---------- */
+  a.action{
+    display:inline-block;text-decoration:none;font-family:var(--f);font-weight:500;font-size:.86rem;
+    background:var(--t);color:#fff;border-radius:var(--rxs);padding:8px 16px;align-self:flex-start;
+  }
+  a.action:hover{background:var(--t-dk)}
+  a.action:active{transform:translateY(1px)}
+  span.action{
+    display:inline-block;font-size:.78rem;font-weight:500;color:var(--amber);
+    background:var(--abg);border:1px solid #fde68a;border-radius:var(--rxs);
+    padding:6px 12px;align-self:flex-start;
+  }
+  .outil.inactif{opacity:.66}
+  .outil.inactif .ico{color:var(--tx3)}
+
+  /* ---------- Blocs bas de page ---------- */
   .card{
-    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
-    box-shadow:var(--shadow); padding:22px 24px; margin-top:24px;
+    background:var(--s);border:1px solid var(--bd);border-radius:var(--r);
+    box-shadow:var(--sh);padding:20px 22px;margin-top:22px;
   }
-  .ok{background:var(--ok-bg); border-color:var(--ok-line)}
-  .ok h2{color:var(--ok-ink)}
-  h2{font-size:1.06rem; margin:0 0 10px}
-  h2 .tick{margin-right:8px}
-  p{margin:0 0 10px}
-  p:last-child{margin-bottom:0}
-  .muted{color:var(--ink-soft); font-size:.9rem}
-  dl{display:grid; grid-template-columns:auto 1fr; gap:8px 18px; margin:0; font-size:.92rem}
-  dt{color:var(--ink-soft)}
-  dd{margin:0; font-variant-numeric:tabular-nums; word-break:break-word}
-  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; margin-top:14px}
-  .tile{
-    border:1px dashed var(--line); border-radius:10px; padding:14px 16px;
-    background:transparent; opacity:.72;
-  }
-  .tile b{display:block; font-size:.95rem; font-weight:600}
-  .tile span{font-size:.8rem; color:var(--ink-soft)}
-  .tile.actif{
-    border-style:solid; border-color:var(--line); background:var(--bg); opacity:1;
-    display:flex; flex-direction:column; gap:10px;
-  }
-  .tile.actif b{font-size:1rem}
-  .lancer{
-    display:inline-block; margin-top:auto; align-self:flex-start; text-decoration:none;
-    background:var(--accent); color:#fff; font-weight:600; font-size:.88rem;
-    border-radius:8px; padding:9px 18px;
-  }
-  .lancer:hover{filter:brightness(1.08)}
-  .lancer:active{transform:translateY(1px)}
-  .secondaire{
-    display:inline-block; text-decoration:none; font-size:.82rem; font-weight:600;
-    color:var(--accent); border:1px solid var(--line); border-radius:7px; padding:7px 12px;
-    background:var(--panel);
-  }
-  .secondaire:hover{border-color:var(--accent)}
-  .avertissement{
-    border-left:3px solid var(--accent); padding:2px 0 2px 14px; margin-top:16px;
-    font-size:.88rem; color:var(--ink-soft);
-  }
-  button{
-    font:inherit; font-weight:600; font-size:.9rem; cursor:pointer;
-    background:var(--accent); color:#fff; border:0; border-radius:8px; padding:10px 16px;
-  }
-  button:hover{filter:brightness(1.08)}
-  button:active{transform:translateY(1px)}
-  .hint{font-size:.85rem; color:var(--ink-soft); margin-top:10px}
-  textarea{
-    width:100%; margin-top:12px; padding:10px 12px; resize:vertical;
-    background:var(--bg); color:var(--ink); border:1px solid var(--line); border-radius:8px;
-    font:.86rem/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;
-  }
-  footer{margin-top:28px; padding-top:16px; border-top:1px solid var(--line); font-size:.82rem; color:var(--ink-soft)}
+  .card h2{font-size:1rem;font-weight:600;margin:0 0 10px}
+  .card p{margin:0 0 9px;font-size:.9rem;color:var(--tx2)}
+  .card p:last-child{margin-bottom:0}
+  .card strong{color:var(--tx);font-weight:500}
   code{
-    background:var(--bg); border:1px solid var(--line); border-radius:5px;
-    padding:1px 5px; font-size:.86em; font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+    font-family:var(--m);font-size:.85em;background:var(--s2);
+    border:1px solid var(--bd);border-radius:5px;padding:1px 5px;
   }
+  .secondaire{
+    display:inline-block;text-decoration:none;font-family:var(--f);font-size:.86rem;font-weight:500;
+    color:var(--t-dk);background:var(--s);border:1px solid var(--bd2);
+    border-radius:var(--rxs);padding:8px 14px;
+  }
+  .secondaire:hover{border-color:var(--t);color:var(--t)}
+  .hint{font-size:.82rem;color:var(--tx3);margin-top:9px}
+
+  details{margin-top:22px;border:1px solid var(--bd);border-radius:var(--r);background:var(--s);overflow:hidden}
+  summary{
+    cursor:pointer;padding:13px 20px;font-size:.88rem;font-weight:500;color:var(--tx2);
+    list-style:none;display:flex;align-items:center;gap:9px;
+  }
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"+";font-family:var(--m);color:var(--tx3)}
+  details[open] summary::before{content:"\2212"}
+  summary:hover{color:var(--tx)}
+  .details-corps{padding:2px 20px 20px}
+  dl{display:grid;grid-template-columns:auto 1fr;gap:7px 18px;margin:0;font-size:.87rem}
+  dt{color:var(--tx3)}
+  dd{margin:0;font-family:var(--m);font-size:.85rem;word-break:break-word}
+  button.bouton{
+    font-family:var(--f);font-weight:500;font-size:.86rem;cursor:pointer;margin-top:16px;
+    background:var(--t);color:#fff;border:0;border-radius:var(--rxs);padding:9px 16px;
+  }
+  button.bouton:hover{background:var(--t-dk)}
+  textarea{
+    width:100%;margin-top:11px;padding:10px 12px;resize:vertical;background:var(--s2);
+    color:var(--tx);border:1px solid var(--bd);border-radius:var(--rsm);
+    font-family:var(--m);font-size:.82rem;line-height:1.5;
+  }
+  .vide{
+    text-align:center;padding:44px 20px;color:var(--tx3);font-size:.9rem;
+    border:1px dashed var(--bd2);border-radius:var(--r);
+  }
+  footer{
+    margin-top:30px;padding-top:16px;border-top:1px solid var(--bd);
+    font-size:.8rem;color:var(--tx3);
+  }
+  :focus-visible{outline:2px solid var(--t);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -107,77 +209,103 @@
   <header>
     <div class="logo">TBR</div>
     <div>
-      <h1>Launcher TBR</h1>
-      <p class="sub">Acc&egrave;s aux outils internes de l'&eacute;quipe</p>
+      <h1>Launcher</h1>
+      <p class="sub">Outils internes de l'&eacute;quipe</p>
     </div>
     <span class="badge">Version d'essai</span>
   </header>
 
-  <section class="card ok">
-    <h2><span class="tick">&#10003;</span>Accessible depuis toutes les antennes</h2>
-    <p>Cette page est h&eacute;berg&eacute;e sur Internet : elle s'affiche <strong>sans d&eacute;pendre d'un serveur de
-       l'entreprise</strong> et <strong>sans qu'aucun poste ait besoin d'&ecirc;tre allum&eacute;</strong>.
-       Mettez-la dans vos favoris.</p>
-  </section>
+  <div class="info">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/>
+    </svg>
+    <div>
+      Les outils se lancent <strong>sur votre poste</strong>, avec vos droits habituels, comme par un
+      double-clic. Cette page transmet seulement l'ordre de d&eacute;marrage : elle ne contient
+      aucune donn&eacute;e.
+    </div>
+  </div>
 
-  <section class="card">
-    <h2>Outils</h2>
-    <div class="grid">
-
-      <div class="tile actif">
-        <b>Viewer PLU / PLUi</b>
-        <span>G&eacute;n&egrave;re un viewer QGIS &agrave; partir d'un PLU ou d'un PLUi</span>
-        <a class="lancer" href="tbrlaunch://viewer_plu">Lancer</a>
-      </div>
-
-      <div class="tile"><b>Cadastre</b><span>&agrave; venir</span></div>
-      <div class="tile"><b>PDF vers PNG</b><span>&agrave; venir</span></div>
-      <div class="tile"><b>Traitement PSMV</b><span>&agrave; venir</span></div>
-      <div class="tile"><b>Carte Viewer</b><span>&agrave; venir</span></div>
-      <div class="tile"><b>Comparaison GPU</b><span>&agrave; venir</span></div>
-
+  <div class="barre">
+    <div class="recherche">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="M20 20l-4.2-4.2"/>
+      </svg>
+      <input type="search" id="q" placeholder="Rechercher un outil..." autocomplete="off"
+             aria-label="Rechercher un outil">
     </div>
 
-    <p class="avertissement">
-      L'outil se lance <strong>sur votre poste</strong>, avec vos droits habituels,
-      exactement comme si vous double-cliquiez sur son fichier. Cette page ne fait que
-      transmettre l'ordre de d&eacute;marrage : elle ne contient et ne transmet aucune donn&eacute;e.
-    </p>
-  </section>
+    <div class="filtres" id="filtres" role="group" aria-label="Filtrer par cat&eacute;gorie"></div>
+
+    <div class="vues" role="group" aria-label="Mode d'affichage">
+      <button class="vue" data-vue="cartes" title="Cartes avec description" aria-pressed="true"
+              aria-label="Affichage en cartes">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" aria-hidden="true">
+          <rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/>
+          <rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/>
+        </svg>
+      </button>
+      <button class="vue" data-vue="icones" title="Ic&ocirc;nes compactes" aria-pressed="false"
+              aria-label="Affichage en ic&ocirc;nes">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" aria-hidden="true">
+          <rect x="3" y="3" width="5" height="5" rx="1"/><rect x="10" y="3" width="5" height="5" rx="1"/>
+          <rect x="17" y="3" width="4" height="5" rx="1"/><rect x="3" y="10" width="5" height="5" rx="1"/>
+          <rect x="10" y="10" width="5" height="5" rx="1"/><rect x="17" y="10" width="4" height="5" rx="1"/>
+          <rect x="3" y="17" width="5" height="4" rx="1"/><rect x="10" y="17" width="5" height="4" rx="1"/>
+        </svg>
+      </button>
+      <button class="vue" data-vue="liste" title="Liste compacte" aria-pressed="false"
+              aria-label="Affichage en liste">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <main id="catalogue" class="vue-cartes"></main>
 
   <section class="card">
     <h2>Premi&egrave;re utilisation sur ce poste</h2>
-    <p>Pour que les boutons ci-dessus fonctionnent, une autorisation doit &ecirc;tre donn&eacute;e
-       une seule fois sur chaque poste : lancez <code>INSTALLER.bat</code>, dans le dossier
-       <code>LAUNCHER</code> du serveur de l'entreprise.</p>
-    <p class="muted">Deux minutes, aucun mot de passe administrateur, aucun logiciel install&eacute;.
+    <p>Pour que les boutons ci-dessus fonctionnent, une autorisation doit &ecirc;tre donn&eacute;e une seule
+       fois sur chaque poste : lancez <code>INSTALLER.bat</code>, dans le dossier <code>LAUNCHER</code>
+       du serveur de l'entreprise.</p>
+    <p>Deux minutes, aucun mot de passe administrateur, aucun logiciel install&eacute;.
        Romain peut vous transmettre le chemin exact.</p>
-    <p style="margin-top:16px">
+    <p style="margin-top:15px">
       <a class="secondaire" href="tbrlaunch://test">V&eacute;rifier la configuration de ce poste</a>
     </p>
     <p class="hint">Si ce bouton n'ouvre aucune fen&ecirc;tre, l'installation n'a pas encore
-       &eacute;t&eacute; faite sur ce poste.</p>
+       &eacute;t&eacute; faite ici.</p>
   </section>
 
-  <section class="card">
-    <h2>Diagnostic de votre poste</h2>
-    <p class="muted" style="margin-bottom:14px">Renseign&eacute; automatiquement par votre navigateur.
-       Aucune donn&eacute;e n'est envoy&eacute;e ni enregistr&eacute;e &mdash; utile uniquement si vous devez
-       signaler un probl&egrave;me.</p>
-    <dl>
-      <dt>Date et heure</dt><dd id="i-date">&mdash;</dd>
-      <dt>Navigateur</dt><dd id="i-nav">&mdash;</dd>
-      <dt>Syst&egrave;me</dt><dd id="i-os">&mdash;</dd>
-      <dt>&Eacute;cran</dt><dd id="i-screen">&mdash;</dd>
-      <dt>Langue</dt><dd id="i-lang">&mdash;</dd>
-    </dl>
-    <p style="margin-top:18px"><button id="copy">Copier le rapport de test</button></p>
-    <textarea id="rapport" hidden rows="7" readonly aria-label="Rapport de test &agrave; copier"></textarea>
-    <p class="hint">Cliquez, puis collez le r&eacute;sultat dans votre message &agrave; Romain.</p>
-  </section>
+  <details>
+    <summary>Diagnostic de ce poste</summary>
+    <div class="details-corps">
+      <p style="font-size:.87rem;color:var(--tx2);margin:0 0 14px">
+        Relev&eacute; par votre navigateur, utile seulement pour signaler un probl&egrave;me.
+        Aucune donn&eacute;e n'est envoy&eacute;e ni enregistr&eacute;e.
+      </p>
+      <dl>
+        <dt>Date et heure</dt><dd id="i-date">&mdash;</dd>
+        <dt>Navigateur</dt><dd id="i-nav">&mdash;</dd>
+        <dt>Syst&egrave;me</dt><dd id="i-os">&mdash;</dd>
+        <dt>&Eacute;cran</dt><dd id="i-screen">&mdash;</dd>
+        <dt>Langue</dt><dd id="i-lang">&mdash;</dd>
+      </dl>
+      <button class="bouton" id="copy">Copier le rapport</button>
+      <textarea id="rapport" hidden rows="7" readonly aria-label="Rapport &agrave; copier"></textarea>
+      <p class="hint">Collez ensuite le r&eacute;sultat dans votre message.</p>
+    </div>
+  </details>
 
   <footer>
-    Version <code>0.2</code> &mdash; 19 ao&ucirc;t 2026.
+    Version <code>0.3</code> &mdash; 19 ao&ucirc;t 2026.
     Cette page ne contient aucune donn&eacute;e m&eacute;tier ni aucun chemin interne.
   </footer>
 
@@ -185,6 +313,208 @@
 
 <script>
 (function () {
+  'use strict';
+
+  /* =====================================================================
+     CATALOGUE DES OUTILS
+     ---------------------------------------------------------------------
+     Pour ajouter un outil : une entree ici, plus une ligne dans
+     l'allowlist du lanceur (tbrlaunch_handler.bat, sur le serveur).
+     "actif: false" affiche la tuile en grise, sans bouton de lancement.
+     Aucun chemin reseau ne doit figurer dans ce fichier.
+     ===================================================================== */
+  var OUTILS = [
+    { id:'viewer_plu', nom:'Viewer PLU / PLUi', cat:'sig', ico:'carte', actif:true,
+      desc:'Génère un viewer QGIS à partir d’un PLU ou d’un PLUi.' },
+
+    { id:'carte_viewer', nom:'Carte Viewer', cat:'sig', ico:'carte', actif:false,
+      desc:'Description à compléter.' },
+
+    { id:'psmv', nom:'Traitement PSMV', cat:'sig', ico:'carte', actif:false,
+      desc:'Traite les données PSMV téléchargées depuis le Géoportail de l’Urbanisme.' },
+
+    { id:'comparate_gpu', nom:'Comparaison GPU', cat:'sig', ico:'comparer', actif:false,
+      desc:'Compare deux versions d’un document du Géoportail de l’Urbanisme.' },
+
+    { id:'argiles', nom:'Argiles 2026', cat:'sig', ico:'calque', actif:false,
+      desc:'Remplace le thème « Argiles 2020 » par « Argiles 2026 ».' },
+
+    { id:'codes_fm', nom:'Codes FM', cat:'sig', ico:'calque', actif:false,
+      desc:'Générateur de codes FM, avec constructeur de CSV.' },
+
+    { id:'pdftopng', nom:'PDF vers PNG', cat:'doc', ico:'image', actif:false,
+      desc:'Convertit des PDF en images PNG : résolution, pages, recadrage.' },
+
+    { id:'certificats', nom:'Certificats', cat:'doc', ico:'document', actif:false,
+      desc:'Génération et envoi des certificats.' },
+
+    { id:'yaml_auto', nom:'YAML auto', cat:'doc', ico:'document', actif:false,
+      desc:'Déduit les correspondances nom → type et section à partir des YAML existants.' },
+
+    { id:'secretariat', nom:'Secrétariat', cat:'admin', ico:'dossier', actif:false,
+      desc:'Export DEM multi-feuilles, avec application des règles métier.' },
+
+    { id:'rangement', nom:'Rangement dossiers', cat:'admin', ico:'dossier', actif:false,
+      desc:'Description à compléter.' },
+
+    { id:'ticketing', nom:'GéoTickets', cat:'admin', ico:'ticket', actif:false,
+      desc:'Gestion de tickets pour urbanistes et géomaticiens.' },
+
+    { id:'veille_auto', nom:'Veille presse', cat:'veille', ico:'oeil', actif:false,
+      desc:'Connexion automatique aux kiosques de presse pour la veille.' },
+
+    { id:'automatisation', nom:'Automatisation', cat:'veille', ico:'engrenage', actif:false,
+      desc:'Description à compléter.' }
+  ];
+
+  var CATEGORIES = [
+    { id:'tous',   nom:'Tous' },
+    { id:'sig',    nom:'SIG / Urbanisme' },
+    { id:'doc',    nom:'Documents' },
+    { id:'admin',  nom:'Secrétariat' },
+    { id:'veille', nom:'Veille' }
+  ];
+
+  /* Icones SVG (traits, monochromes, sans dependance externe) */
+  var CHEMINS = {
+    carte:     '<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>',
+    calque:    '<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/>',
+    comparer:  '<path d="M7 4v16M17 4v16"/><path d="M4 8h6M14 16h6"/>',
+    image:     '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5-5-6 6"/>',
+    document:  '<path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8l-5-5z"/><path d="M14 3v5h5"/>',
+    dossier:   '<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>',
+    ticket:    '<path d="M20.6 8.4L12 17l-8.6-8.6A2 2 0 014.8 5h14.4a2 2 0 011.4 3.4z"/><circle cx="12" cy="10" r="1.4"/>',
+    oeil:      '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+    engrenage: '<circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2.1 2.1M16.9 16.9L19 19M19 5l-2.1 2.1M7.1 16.9L5 19"/>'
+  };
+
+  function icone(nom, taille) {
+    var d = CHEMINS[nom] || CHEMINS.document;
+    return '<svg class="ico" width="' + taille + '" height="' + taille + '" viewBox="0 0 24 24" ' +
+           'fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" ' +
+           'stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+  }
+
+  /* ---------------------------------------------------------------- Etat */
+  var CLE_VUE = 'tbr_launcher_vue';
+  var CLE_CAT = 'tbr_launcher_cat';
+  var VUES_OK = { cartes:1, icones:1, liste:1 };
+
+  function lire(cle, defaut, valides) {
+    try {
+      var v = window.localStorage.getItem(cle);
+      if (v && (!valides || valides[v])) { return v; }
+    } catch (e) {}
+    return defaut;
+  }
+  function ecrire(cle, valeur) {
+    try { window.localStorage.setItem(cle, valeur); } catch (e) {}
+  }
+
+  var etat = {
+    vue: lire(CLE_VUE, 'cartes', VUES_OK),
+    cat: lire(CLE_CAT, 'tous'),
+    q: ''
+  };
+  if (!CATEGORIES.some(function (c) { return c.id === etat.cat; })) { etat.cat = 'tous'; }
+
+  /* ------------------------------------------------------------- Rendu */
+  var elCatalogue = document.getElementById('catalogue');
+  var elFiltres = document.getElementById('filtres');
+  var elQ = document.getElementById('q');
+
+  function sansAccent(s) {
+    return s.normalize ? s.normalize('NFD').replace(/[̀-ͯ]/g, '') : s;
+  }
+  function echappe(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function correspond(o) {
+    if (etat.cat !== 'tous' && o.cat !== etat.cat) { return false; }
+    if (!etat.q) { return true; }
+    var q = sansAccent(etat.q.toLowerCase());
+    return sansAccent((o.nom + ' ' + o.desc).toLowerCase()).indexOf(q) !== -1;
+  }
+
+  function tuile(o) {
+    var taille = etat.vue === 'icones' ? 26 : (etat.vue === 'liste' ? 18 : 22);
+    var action = o.actif
+      ? '<a class="action" href="tbrlaunch://' + o.id + '">Lancer</a>'
+      : '<span class="action">&agrave; venir</span>';
+    return '<div class="outil' + (o.actif ? '' : ' inactif') + '">' +
+             icone(o.ico, taille) +
+             '<p class="nom">' + echappe(o.nom) + '</p>' +
+             '<p class="desc">' + echappe(o.desc) + '</p>' +
+             action +
+           '</div>';
+  }
+
+  function dessine() {
+    elCatalogue.className = 'vue-' + etat.vue;
+
+    var visibles = OUTILS.filter(correspond);
+
+    if (!visibles.length) {
+      elCatalogue.innerHTML = '<div class="vide">Aucun outil ne correspond &agrave; votre recherche.</div>';
+      return;
+    }
+
+    // Groupe par categorie, sauf si une seule categorie est demandee
+    var html = '';
+    if (etat.cat === 'tous') {
+      CATEGORIES.forEach(function (c) {
+        if (c.id === 'tous') { return; }
+        var lot = visibles.filter(function (o) { return o.cat === c.id; });
+        if (!lot.length) { return; }
+        html += '<section class="groupe"><h2 class="groupe-titre">' + c.nom + '</h2>' +
+                '<div class="liste">' + lot.map(tuile).join('') + '</div></section>';
+      });
+    } else {
+      html = '<section class="groupe"><div class="liste">' +
+             visibles.map(tuile).join('') + '</div></section>';
+    }
+    elCatalogue.innerHTML = html;
+  }
+
+  /* --------------------------------------------------------- Interactions */
+  elFiltres.innerHTML = CATEGORIES.map(function (c) {
+    return '<button class="filtre" data-cat="' + c.id + '" aria-pressed="' +
+           (c.id === etat.cat) + '">' + c.nom + '</button>';
+  }).join('');
+
+  elFiltres.addEventListener('click', function (ev) {
+    var b = ev.target.closest('.filtre');
+    if (!b) { return; }
+    etat.cat = b.getAttribute('data-cat');
+    ecrire(CLE_CAT, etat.cat);
+    Array.prototype.forEach.call(elFiltres.children, function (x) {
+      x.setAttribute('aria-pressed', x === b);
+    });
+    dessine();
+  });
+
+  var boutonsVue = document.querySelectorAll('.vue');
+  Array.prototype.forEach.call(boutonsVue, function (b) {
+    b.setAttribute('aria-pressed', b.getAttribute('data-vue') === etat.vue);
+    b.addEventListener('click', function () {
+      etat.vue = b.getAttribute('data-vue');
+      ecrire(CLE_VUE, etat.vue);
+      Array.prototype.forEach.call(boutonsVue, function (x) {
+        x.setAttribute('aria-pressed', x === b);
+      });
+      dessine();
+    });
+  });
+
+  elQ.addEventListener('input', function () {
+    etat.q = elQ.value.trim();
+    dessine();
+  });
+
+  dessine();
+
+  /* ------------------------------------------------------- Diagnostic */
   var ua = navigator.userAgent;
 
   function detectNav() {
@@ -199,7 +529,7 @@
 
   function detectOS() {
     var m;
-    if (/Windows NT 10\.0/.test(ua))        { return 'Windows 10 ou 11'; }
+    if (/Windows NT 10\.0/.test(ua))           { return 'Windows 10 ou 11'; }
     if ((m = ua.match(/Windows NT ([\d.]+)/))) { return 'Windows ' + m[1]; }
     if (/Mac OS X/.test(ua))    { return 'macOS'; }
     if (/Android/.test(ua))     { return 'Android'; }
@@ -211,8 +541,7 @@
   function detectEcran() {
     var l = screen.width  || window.innerWidth  || 0;
     var h = screen.height || window.innerHeight || 0;
-    if (!l || !h) { return 'non communique par le navigateur'; }
-    return l + ' x ' + h + ' px';
+    return (!l || !h) ? 'non communique par le navigateur' : (l + ' x ' + h + ' px');
   }
 
   function detectLangue() {
@@ -235,7 +564,6 @@
   });
 
   var btn = document.getElementById('copy');
-
   var zone = document.getElementById('rapport');
 
   function confirme(message) {
@@ -245,8 +573,7 @@
     setTimeout(function () { btn.textContent = avant; }, 2200);
   }
 
-  // Repli sans popup : on affiche le texte dans la page, deja selectionne,
-  // pret pour un Ctrl+C. Fonctionne meme si le presse-papier est refuse.
+  // Repli sans popup : le texte s'affiche dans la page, deja selectionne.
   function affiche(txt) {
     zone.value = txt;
     zone.hidden = false;
@@ -256,11 +583,10 @@
 
   btn.addEventListener('click', function () {
     var apostrophe = String.fromCharCode(39);
-    var lignes = ['Test Launcher TBR : la page s' + apostrophe + 'ouvre correctement.'];
+    var lignes = ['Launcher TBR : la page s' + apostrophe + 'ouvre correctement.'];
     champs.forEach(function (c) { lignes.push('- ' + c[0] + ' : ' + c[2]); });
     var txt = lignes.join('\n');
 
-    // 1. Methode moderne (necessite HTTPS, ce que fournit l hebergement).
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(txt).then(
         function () { confirme('Copie !'); },
@@ -269,7 +595,6 @@
       return;
     }
 
-    // 2. Methode ancienne, puis affichage dans la page si elle echoue aussi.
     affiche(txt);
     var ok = false;
     try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
