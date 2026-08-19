@@ -60,6 +60,28 @@
   }
   .tile b{display:block; font-size:.95rem; font-weight:600}
   .tile span{font-size:.8rem; color:var(--ink-soft)}
+  .tile.actif{
+    border-style:solid; border-color:var(--line); background:var(--bg); opacity:1;
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .tile.actif b{font-size:1rem}
+  .lancer{
+    display:inline-block; margin-top:auto; align-self:flex-start; text-decoration:none;
+    background:var(--accent); color:#fff; font-weight:600; font-size:.88rem;
+    border-radius:8px; padding:9px 18px;
+  }
+  .lancer:hover{filter:brightness(1.08)}
+  .lancer:active{transform:translateY(1px)}
+  .secondaire{
+    display:inline-block; text-decoration:none; font-size:.82rem; font-weight:600;
+    color:var(--accent); border:1px solid var(--line); border-radius:7px; padding:7px 12px;
+    background:var(--panel);
+  }
+  .secondaire:hover{border-color:var(--accent)}
+  .avertissement{
+    border-left:3px solid var(--accent); padding:2px 0 2px 14px; margin-top:16px;
+    font-size:.88rem; color:var(--ink-soft);
+  }
   button{
     font:inherit; font-weight:600; font-size:.9rem; cursor:pointer;
     background:var(--accent); color:#fff; border:0; border-radius:8px; padding:10px 16px;
@@ -88,21 +110,60 @@
       <h1>Launcher TBR</h1>
       <p class="sub">Acc&egrave;s aux outils internes de l'&eacute;quipe</p>
     </div>
-    <span class="badge">Page de test</span>
+    <span class="badge">Version d'essai</span>
   </header>
 
   <section class="card ok">
-    <h2><span class="tick">&#10003;</span>Si vous lisez ceci, le test est r&eacute;ussi</h2>
-    <p>Cette page est h&eacute;berg&eacute;e sur Internet. Elle s'affiche <strong>sans passer par un serveur de
-       l'entreprise</strong> et <strong>sans qu'aucun poste de l'&eacute;quipe soit allum&eacute;</strong>.</p>
-    <p class="muted">C'est exactement ce qu'on cherchait &agrave; v&eacute;rifier : chaque coll&egrave;gue, quelle que
-       soit son antenne, peut ouvrir cette page &agrave; tout moment.</p>
+    <h2><span class="tick">&#10003;</span>Accessible depuis toutes les antennes</h2>
+    <p>Cette page est h&eacute;berg&eacute;e sur Internet : elle s'affiche <strong>sans d&eacute;pendre d'un serveur de
+       l'entreprise</strong> et <strong>sans qu'aucun poste ait besoin d'&ecirc;tre allum&eacute;</strong>.
+       Mettez-la dans vos favoris.</p>
   </section>
 
   <section class="card">
-    <h2>Informations de votre poste</h2>
-    <p class="muted" style="margin-bottom:14px">Renseign&eacute;es automatiquement par votre navigateur.
-       Aucune donn&eacute;e n'est envoy&eacute;e ni enregistr&eacute;e.</p>
+    <h2>Outils</h2>
+    <div class="grid">
+
+      <div class="tile actif">
+        <b>Viewer PLU / PLUi</b>
+        <span>G&eacute;n&egrave;re un viewer QGIS &agrave; partir d'un PLU ou d'un PLUi</span>
+        <a class="lancer" href="tbrlaunch://viewer_plu">Lancer</a>
+      </div>
+
+      <div class="tile"><b>Cadastre</b><span>&agrave; venir</span></div>
+      <div class="tile"><b>PDF vers PNG</b><span>&agrave; venir</span></div>
+      <div class="tile"><b>Traitement PSMV</b><span>&agrave; venir</span></div>
+      <div class="tile"><b>Carte Viewer</b><span>&agrave; venir</span></div>
+      <div class="tile"><b>Comparaison GPU</b><span>&agrave; venir</span></div>
+
+    </div>
+
+    <p class="avertissement">
+      L'outil se lance <strong>sur votre poste</strong>, avec vos droits habituels,
+      exactement comme si vous double-cliquiez sur son fichier. Cette page ne fait que
+      transmettre l'ordre de d&eacute;marrage : elle ne contient et ne transmet aucune donn&eacute;e.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Premi&egrave;re utilisation sur ce poste</h2>
+    <p>Pour que les boutons ci-dessus fonctionnent, une autorisation doit &ecirc;tre donn&eacute;e
+       une seule fois sur chaque poste : lancez <code>INSTALLER.bat</code>, dans le dossier
+       <code>LAUNCHER</code> du serveur de l'entreprise.</p>
+    <p class="muted">Deux minutes, aucun mot de passe administrateur, aucun logiciel install&eacute;.
+       Romain peut vous transmettre le chemin exact.</p>
+    <p style="margin-top:16px">
+      <a class="secondaire" href="tbrlaunch://test">V&eacute;rifier la configuration de ce poste</a>
+    </p>
+    <p class="hint">Si ce bouton n'ouvre aucune fen&ecirc;tre, l'installation n'a pas encore
+       &eacute;t&eacute; faite sur ce poste.</p>
+  </section>
+
+  <section class="card">
+    <h2>Diagnostic de votre poste</h2>
+    <p class="muted" style="margin-bottom:14px">Renseign&eacute; automatiquement par votre navigateur.
+       Aucune donn&eacute;e n'est envoy&eacute;e ni enregistr&eacute;e &mdash; utile uniquement si vous devez
+       signaler un probl&egrave;me.</p>
     <dl>
       <dt>Date et heure</dt><dd id="i-date">&mdash;</dd>
       <dt>Navigateur</dt><dd id="i-nav">&mdash;</dd>
@@ -112,26 +173,11 @@
     </dl>
     <p style="margin-top:18px"><button id="copy">Copier le rapport de test</button></p>
     <textarea id="rapport" hidden rows="7" readonly aria-label="Rapport de test &agrave; copier"></textarea>
-    <p class="hint">Cliquez, puis collez le r&eacute;sultat dans un message &agrave; Romain pour confirmer que la page
-       fonctionne chez vous.</p>
-  </section>
-
-  <section class="card">
-    <h2>Outils qui seront disponibles ici</h2>
-    <p class="muted">Aucun n'est encore actif : cette page ne sert qu'&agrave; valider l'acc&egrave;s.
-       Les boutons de lancement viendront ensuite.</p>
-    <div class="grid">
-      <div class="tile"><b>Viewer PLU / PLUi</b><span>&agrave; venir</span></div>
-      <div class="tile"><b>Cadastre</b><span>&agrave; venir</span></div>
-      <div class="tile"><b>PDF vers PNG</b><span>&agrave; venir</span></div>
-      <div class="tile"><b>Traitement PSMV</b><span>&agrave; venir</span></div>
-      <div class="tile"><b>Carte Viewer</b><span>&agrave; venir</span></div>
-      <div class="tile"><b>Comparaison GPU</b><span>&agrave; venir</span></div>
-    </div>
+    <p class="hint">Cliquez, puis collez le r&eacute;sultat dans votre message &agrave; Romain.</p>
   </section>
 
   <footer>
-    Version de test <code>0.1</code> &mdash; publi&eacute;e le 19 ao&ucirc;t 2026.
+    Version <code>0.2</code> &mdash; 19 ao&ucirc;t 2026.
     Cette page ne contient aucune donn&eacute;e m&eacute;tier ni aucun chemin interne.
   </footer>
 
