@@ -67,6 +67,11 @@
   button:hover{filter:brightness(1.08)}
   button:active{transform:translateY(1px)}
   .hint{font-size:.85rem; color:var(--ink-soft); margin-top:10px}
+  textarea{
+    width:100%; margin-top:12px; padding:10px 12px; resize:vertical;
+    background:var(--bg); color:var(--ink); border:1px solid var(--line); border-radius:8px;
+    font:.86rem/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;
+  }
   footer{margin-top:28px; padding-top:16px; border-top:1px solid var(--line); font-size:.82rem; color:var(--ink-soft)}
   code{
     background:var(--bg); border:1px solid var(--line); border-radius:5px;
@@ -106,6 +111,7 @@
       <dt>Langue</dt><dd id="i-lang">&mdash;</dd>
     </dl>
     <p style="margin-top:18px"><button id="copy">Copier le rapport de test</button></p>
+    <textarea id="rapport" hidden rows="7" readonly aria-label="Rapport de test &agrave; copier"></textarea>
     <p class="hint">Cliquez, puis collez le r&eacute;sultat dans un message &agrave; Romain pour confirmer que la page
        fonctionne chez vous.</p>
   </section>
@@ -156,12 +162,25 @@
     return 'systeme non identifie';
   }
 
+  function detectEcran() {
+    var l = screen.width  || window.innerWidth  || 0;
+    var h = screen.height || window.innerHeight || 0;
+    if (!l || !h) { return 'non communique par le navigateur'; }
+    return l + ' x ' + h + ' px';
+  }
+
+  function detectLangue() {
+    if (navigator.language) { return navigator.language; }
+    if (navigator.languages && navigator.languages.length) { return navigator.languages[0]; }
+    return 'non communiquee par le navigateur';
+  }
+
   var champs = [
     ['Date et heure', 'i-date',   new Date().toLocaleString('fr-FR')],
     ['Navigateur',    'i-nav',    detectNav()],
     ['Systeme',       'i-os',     detectOS()],
-    ['Ecran',         'i-screen', screen.width + ' x ' + screen.height + ' px'],
-    ['Langue',        'i-lang',   navigator.language || 'inconnue']
+    ['Ecran',         'i-screen', detectEcran()],
+    ['Langue',        'i-lang',   detectLangue()]
   ];
 
   champs.forEach(function (c) {
@@ -171,24 +190,44 @@
 
   var btn = document.getElementById('copy');
 
+  var zone = document.getElementById('rapport');
+
+  function confirme(message) {
+    var avant = btn.getAttribute('data-label') || btn.textContent;
+    btn.setAttribute('data-label', avant);
+    btn.textContent = message;
+    setTimeout(function () { btn.textContent = avant; }, 2200);
+  }
+
+  // Repli sans popup : on affiche le texte dans la page, deja selectionne,
+  // pret pour un Ctrl+C. Fonctionne meme si le presse-papier est refuse.
+  function affiche(txt) {
+    zone.value = txt;
+    zone.hidden = false;
+    zone.focus();
+    zone.select();
+  }
+
   btn.addEventListener('click', function () {
-    var lignes = ['Test Launcher TBR : la page s' + String.fromCharCode(39) + 'ouvre correctement.'];
+    var apostrophe = String.fromCharCode(39);
+    var lignes = ['Test Launcher TBR : la page s' + apostrophe + 'ouvre correctement.'];
     champs.forEach(function (c) { lignes.push('- ' + c[0] + ' : ' + c[2]); });
     var txt = lignes.join('\n');
 
-    function confirme() {
-      var avant = btn.textContent;
-      btn.textContent = 'Copie !';
-      setTimeout(function () { btn.textContent = avant; }, 1800);
+    // 1. Methode moderne (necessite HTTPS, ce que fournit l hebergement).
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(
+        function () { confirme('Copie !'); },
+        function () { affiche(txt); confirme('Copiez avec Ctrl+C'); }
+      );
+      return;
     }
 
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(txt).then(confirme, function () {
-        window.prompt('Copiez ce texte :', txt);
-      });
-    } else {
-      window.prompt('Copiez ce texte :', txt);
-    }
+    // 2. Methode ancienne, puis affichage dans la page si elle echoue aussi.
+    affiche(txt);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    confirme(ok ? 'Copie !' : 'Copiez avec Ctrl+C');
   });
 })();
 </script>
