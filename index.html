@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Launcher TBR</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --panel:#ffffff; --ink:#1c2230; --ink-soft:#5b6478;
+    --line:#dde1e8; --accent:#2f5d8a; --ok-bg:#e8f5ec; --ok-line:#8fc6a4; --ok-ink:#1e6b3d;
+    --shadow:0 1px 2px rgba(20,28,45,.06), 0 8px 24px rgba(20,28,45,.06);
+    --radius:12px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#12151b; --panel:#1a1f27; --ink:#e8ecf2; --ink-soft:#9aa4b6;
+      --line:#2b323d; --accent:#7aa8d4; --ok-bg:#16301f; --ok-line:#2f6b45; --ok-ink:#8ddba8;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:920px; margin:0 auto; padding:32px 20px 64px}
+  header{display:flex; align-items:center; gap:14px; margin-bottom:8px; flex-wrap:wrap}
+  .logo{
+    width:44px; height:44px; border-radius:10px; flex:0 0 auto;
+    background:var(--accent); color:#fff; display:grid; place-items:center;
+    font-weight:700; letter-spacing:.5px; font-size:15px;
+  }
+  h1{font-size:1.5rem; margin:0; letter-spacing:-.01em}
+  .sub{color:var(--ink-soft); font-size:.92rem; margin:2px 0 0}
+  .badge{
+    display:inline-block; margin-left:auto; font-size:.72rem; font-weight:600;
+    text-transform:uppercase; letter-spacing:.08em; padding:5px 10px; border-radius:999px;
+    background:var(--panel); border:1px solid var(--line); color:var(--ink-soft);
+  }
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:22px 24px; margin-top:24px;
+  }
+  .ok{background:var(--ok-bg); border-color:var(--ok-line)}
+  .ok h2{color:var(--ok-ink)}
+  h2{font-size:1.06rem; margin:0 0 10px}
+  h2 .tick{margin-right:8px}
+  p{margin:0 0 10px}
+  p:last-child{margin-bottom:0}
+  .muted{color:var(--ink-soft); font-size:.9rem}
+  dl{display:grid; grid-template-columns:auto 1fr; gap:8px 18px; margin:0; font-size:.92rem}
+  dt{color:var(--ink-soft)}
+  dd{margin:0; font-variant-numeric:tabular-nums; word-break:break-word}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; margin-top:14px}
+  .tile{
+    border:1px dashed var(--line); border-radius:10px; padding:14px 16px;
+    background:transparent; opacity:.72;
+  }
+  .tile b{display:block; font-size:.95rem; font-weight:600}
+  .tile span{font-size:.8rem; color:var(--ink-soft)}
+  button{
+    font:inherit; font-weight:600; font-size:.9rem; cursor:pointer;
+    background:var(--accent); color:#fff; border:0; border-radius:8px; padding:10px 16px;
+  }
+  button:hover{filter:brightness(1.08)}
+  button:active{transform:translateY(1px)}
+  .hint{font-size:.85rem; color:var(--ink-soft); margin-top:10px}
+  footer{margin-top:28px; padding-top:16px; border-top:1px solid var(--line); font-size:.82rem; color:var(--ink-soft)}
+  code{
+    background:var(--bg); border:1px solid var(--line); border-radius:5px;
+    padding:1px 5px; font-size:.86em; font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo">TBR</div>
+    <div>
+      <h1>Launcher TBR</h1>
+      <p class="sub">Acc&egrave;s aux outils internes de l'&eacute;quipe</p>
+    </div>
+    <span class="badge">Page de test</span>
+  </header>
+
+  <section class="card ok">
+    <h2><span class="tick">&#10003;</span>Si vous lisez ceci, le test est r&eacute;ussi</h2>
+    <p>Cette page est h&eacute;berg&eacute;e sur Internet. Elle s'affiche <strong>sans passer par un serveur de
+       l'entreprise</strong> et <strong>sans qu'aucun poste de l'&eacute;quipe soit allum&eacute;</strong>.</p>
+    <p class="muted">C'est exactement ce qu'on cherchait &agrave; v&eacute;rifier : chaque coll&egrave;gue, quelle que
+       soit son antenne, peut ouvrir cette page &agrave; tout moment.</p>
+  </section>
+
+  <section class="card">
+    <h2>Informations de votre poste</h2>
+    <p class="muted" style="margin-bottom:14px">Renseign&eacute;es automatiquement par votre navigateur.
+       Aucune donn&eacute;e n'est envoy&eacute;e ni enregistr&eacute;e.</p>
+    <dl>
+      <dt>Date et heure</dt><dd id="i-date">&mdash;</dd>
+      <dt>Navigateur</dt><dd id="i-nav">&mdash;</dd>
+      <dt>Syst&egrave;me</dt><dd id="i-os">&mdash;</dd>
+      <dt>&Eacute;cran</dt><dd id="i-screen">&mdash;</dd>
+      <dt>Langue</dt><dd id="i-lang">&mdash;</dd>
+    </dl>
+    <p style="margin-top:18px"><button id="copy">Copier le rapport de test</button></p>
+    <p class="hint">Cliquez, puis collez le r&eacute;sultat dans un message &agrave; Romain pour confirmer que la page
+       fonctionne chez vous.</p>
+  </section>
+
+  <section class="card">
+    <h2>Outils qui seront disponibles ici</h2>
+    <p class="muted">Aucun n'est encore actif : cette page ne sert qu'&agrave; valider l'acc&egrave;s.
+       Les boutons de lancement viendront ensuite.</p>
+    <div class="grid">
+      <div class="tile"><b>Viewer PLU / PLUi</b><span>&agrave; venir</span></div>
+      <div class="tile"><b>Cadastre</b><span>&agrave; venir</span></div>
+      <div class="tile"><b>PDF vers PNG</b><span>&agrave; venir</span></div>
+      <div class="tile"><b>Traitement PSMV</b><span>&agrave; venir</span></div>
+      <div class="tile"><b>Carte Viewer</b><span>&agrave; venir</span></div>
+      <div class="tile"><b>Comparaison GPU</b><span>&agrave; venir</span></div>
+    </div>
+  </section>
+
+  <footer>
+    Version de test <code>0.1</code> &mdash; publi&eacute;e le 19 ao&ucirc;t 2026.
+    Cette page ne contient aucune donn&eacute;e m&eacute;tier ni aucun chemin interne.
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  var ua = navigator.userAgent;
+
+  function detectNav() {
+    var m;
+    if ((m = ua.match(/Edg\/(\d+)/)))     { return 'Microsoft Edge ' + m[1]; }
+    if ((m = ua.match(/OPR\/(\d+)/)))     { return 'Opera ' + m[1]; }
+    if ((m = ua.match(/Firefox\/(\d+)/))) { return 'Firefox ' + m[1]; }
+    if ((m = ua.match(/Chrome\/(\d+)/)))  { return 'Chrome ' + m[1]; }
+    if ((m = ua.match(/Version\/([\d.]+).*Safari/))) { return 'Safari ' + m[1]; }
+    return 'navigateur non identifie';
+  }
+
+  function detectOS() {
+    var m;
+    if (/Windows NT 10\.0/.test(ua))        { return 'Windows 10 ou 11'; }
+    if ((m = ua.match(/Windows NT ([\d.]+)/))) { return 'Windows ' + m[1]; }
+    if (/Mac OS X/.test(ua))    { return 'macOS'; }
+    if (/Android/.test(ua))     { return 'Android'; }
+    if (/iPhone|iPad/.test(ua)) { return 'iOS'; }
+    if (/Linux/.test(ua))       { return 'Linux'; }
+    return 'systeme non identifie';
+  }
+
+  var champs = [
+    ['Date et heure', 'i-date',   new Date().toLocaleString('fr-FR')],
+    ['Navigateur',    'i-nav',    detectNav()],
+    ['Systeme',       'i-os',     detectOS()],
+    ['Ecran',         'i-screen', screen.width + ' x ' + screen.height + ' px'],
+    ['Langue',        'i-lang',   navigator.language || 'inconnue']
+  ];
+
+  champs.forEach(function (c) {
+    var el = document.getElementById(c[1]);
+    if (el) { el.textContent = c[2]; }
+  });
+
+  var btn = document.getElementById('copy');
+
+  btn.addEventListener('click', function () {
+    var lignes = ['Test Launcher TBR : la page s' + String.fromCharCode(39) + 'ouvre correctement.'];
+    champs.forEach(function (c) { lignes.push('- ' + c[0] + ' : ' + c[2]); });
+    var txt = lignes.join('\n');
+
+    function confirme() {
+      var avant = btn.textContent;
+      btn.textContent = 'Copie !';
+      setTimeout(function () { btn.textContent = avant; }, 1800);
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(confirme, function () {
+        window.prompt('Copiez ce texte :', txt);
+      });
+    } else {
+      window.prompt('Copiez ce texte :', txt);
+    }
+  });
+})();
+</script>
+</body>
+</html>
