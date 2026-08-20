@@ -347,7 +347,7 @@
   </details>
 
   <footer>
-    Version <code>0.6</code> &mdash; 19 ao&ucirc;t 2026.
+    Version <code>0.7</code> &mdash; 19 ao&ucirc;t 2026.
     Cette page ne contient aucune donn&eacute;e m&eacute;tier ni aucun chemin interne.
   </footer>
 
@@ -375,7 +375,12 @@
     { id:'pdftopng', nom:'PDF vers PNG', cat:'doc', ico:'image',
       actif:true, reserve:false,
       desc:'Convertit des PDF en images PNG : zone à extraire tracée à la souris, ' +
-           'résolution et pages au choix, fond blanc effaçable.' }
+           'résolution et pages au choix, fond blanc effaçable.' },
+
+    { id:'certificats', nom:'Certificats', cat:'admin', ico:'document',
+      actif:true, reserve:true,
+      desc:'Envoi des certificats aux communes et relances : préparation des ' +
+           'fichiers, lancement des traitements et consultation des journaux.' }
   ];
 
   /* Outils repertories mais volontairement absents du launcher. Conserves ici
@@ -388,7 +393,6 @@
      comparate_gpu | Comparaison GPU       | sig    | comparer
      argiles       | Argiles 2026          | sig    | calque
      codes_fm      | Codes FM              | sig    | calque
-     certificats   | Certificats           | doc    | document
      yaml_auto     | YAML auto             | doc    | document
      secretariat   | Secretariat           | admin  | dossier
      rangement     | Rangement dossiers    | admin  | dossier
