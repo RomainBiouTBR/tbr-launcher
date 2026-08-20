@@ -143,6 +143,24 @@
     .vue-liste .nom{min-width:0;flex:1}
   }
 
+  /* ---------- Ligne d'entete d'une tuile (icone + marque reserve) ---------- */
+  .tete{display:flex;align-items:center;gap:8px}
+  .reserve{
+    margin-left:auto;display:inline-flex;align-items:center;gap:5px;
+    font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--amber);background:var(--abg);border:1px solid #fde68a;
+    border-radius:999px;padding:3px 9px;white-space:nowrap;
+  }
+  .cadenas{flex:0 0 auto}
+  /* En affichage compact, on ne garde que le cadenas. */
+  .vue-icones .reserve-txt,.vue-liste .reserve-txt{display:none}
+  .vue-icones .reserve,.vue-liste .reserve{padding:4px;border-radius:50%;gap:0}
+  .vue-cartes .tete{width:100%}
+  .vue-icones .tete{flex-direction:row-reverse;gap:6px}
+  .vue-icones .reserve{margin-left:0}
+  .vue-liste .tete{flex:0 0 auto}
+  .vue-liste .reserve{margin-left:0}
+
   /* ---------- Boutons d'action ---------- */
   a.action{
     display:inline-block;text-decoration:none;font-family:var(--f);font-weight:500;font-size:.86rem;
@@ -298,6 +316,9 @@
     <p>Les outils se lancent ensuite <strong>sur votre poste</strong>, avec vos droits habituels,
        exactement comme par un double-clic. Cette page transmet seulement l'ordre de d&eacute;marrage :
        elle ne contient aucune donn&eacute;e.</p>
+    <p>Les outils portant la mention <strong>R&eacute;serv&eacute;</strong> s'adressent &agrave; un
+       m&eacute;tier pr&eacute;cis et demandent un code au moment du lancement. Si vous devez en
+       utiliser un, demandez le code &agrave; Romain.</p>
     <p style="margin-top:15px">
       <a class="secondaire" href="tbrlaunch://test">V&eacute;rifier la configuration de ce poste</a>
     </p>
@@ -326,7 +347,7 @@
   </details>
 
   <footer>
-    Version <code>0.5</code> &mdash; 19 ao&ucirc;t 2026.
+    Version <code>0.6</code> &mdash; 19 ao&ucirc;t 2026.
     Cette page ne contient aucune donn&eacute;e m&eacute;tier ni aucun chemin interne.
   </footer>
 
@@ -345,8 +366,11 @@
      Aucun chemin reseau ne doit figurer dans ce fichier.
      ===================================================================== */
   var OUTILS = [
-    { id:'viewer_plu', nom:'Viewer PLU / PLUi / CC', cat:'sig', ico:'carte', actif:true,
-      desc:'Génère un viewer QGIS à partir d’un PLU, d’un PLUi ou d’une Carte Communale.' }
+    { id:'viewer_plu', nom:'Viewer PLU / PLUi / CC', cat:'sig', ico:'carte',
+      actif:true, reserve:true,
+      desc:'Génère la base d’un viewer QGIS à partir du téléchargement d’un PLU, ' +
+           'd’un PLUi ou d’une Carte Communale depuis le GPU. Permet également de ' +
+           'comparer deux versions de documents.' }
   ];
 
   /* Outils repertories mais volontairement absents du launcher. Conserves ici
@@ -445,13 +469,24 @@
     return sansAccent((o.nom + ' ' + o.desc).toLowerCase()).indexOf(q) !== -1;
   }
 
+  var CADENAS = '<svg class="cadenas" width="12" height="12" viewBox="0 0 24 24" fill="none" ' +
+    'stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" ' +
+    'aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/>' +
+    '<path d="M8 11V7a4 4 0 018 0v4"/></svg>';
+
   function tuile(o) {
     var taille = etat.vue === 'icones' ? 26 : (etat.vue === 'liste' ? 18 : 22);
     var action = o.actif
       ? '<a class="action" href="tbrlaunch://' + o.id + '">Lancer</a>'
       : '<span class="action">&agrave; venir</span>';
+    // Signale un outil dont le lanceur demandera un code. Le code lui-meme
+    // n'est pas ici : il est dans le lanceur, sur le serveur de l'entreprise.
+    var marque = o.reserve
+      ? '<span class="reserve" title="Un code d\'acc&egrave;s sera demand&eacute;">' +
+        CADENAS + '<span class="reserve-txt">R&eacute;serv&eacute;</span></span>'
+      : '';
     return '<div class="outil' + (o.actif ? '' : ' inactif') + '">' +
-             icone(o.ico, taille) +
+             '<div class="tete">' + icone(o.ico, taille) + marque + '</div>' +
              '<p class="nom">' + echappe(o.nom) + '</p>' +
              '<p class="desc">' + echappe(o.desc) + '</p>' +
              action +
