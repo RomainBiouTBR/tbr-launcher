@@ -391,7 +391,7 @@
   </details>
 
   <footer>
-    Version <code>1.1</code> &mdash; 20 ao&ucirc;t 2026.
+    Version <code>1.2</code> &mdash; 20 ao&ucirc;t 2026.
     Cette page ne contient aucune donn&eacute;e m&eacute;tier, aucun chemin interne
     et aucun code d'acc&egrave;s.
   </footer>
@@ -452,7 +452,13 @@
       actif:true, reserve:true,
       desc:'Import du cadastre EDIGEO vers PostgreSQL. Démarre un serveur ' +
            'local : l’interface s’ouvre ensuite dans votre navigateur, et la ' +
-           'fenêtre noire doit rester ouverte pendant l’utilisation.' }
+           'fenêtre noire doit rester ouverte pendant l’utilisation.' },
+
+    { id:'cartes', nom:'Cartes Prod / Viewer', cat:'sig', ico:'calque',
+      actif:true, reserve:true,
+      desc:'Carte à jour des viewers et répartition des départements par ' +
+           'équipe : mise à jour des données, projet QGIS, tableau des ' +
+           'équipes et accès aux cartes produites.' }
   ];
 
   /* Outils repertories mais volontairement absents du launcher. Conserves ici
