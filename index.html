@@ -176,6 +176,17 @@
   .outil.inactif{opacity:.66}
   .outil.inactif .ico{color:var(--tx3)}
 
+  /* ---------- Action secondaire d'une tuile ---------- */
+  .actions-outil{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:4px}
+  a.action-bis{
+    text-decoration:none;font-family:var(--f);font-weight:500;font-size:.8rem;
+    color:var(--t);border-bottom:1px solid transparent;
+  }
+  a.action-bis:hover{border-bottom-color:var(--t)}
+  .vue-liste .actions-outil{margin-top:0}
+  /* En affichage icones, la tuile est trop etroite : on garde l'essentiel. */
+  .vue-icones a.action-bis{display:none}
+
   /* ---------- Blocs bas de page ---------- */
   .card{
     background:var(--s);border:1px solid var(--bd);border-radius:var(--r);
@@ -380,7 +391,7 @@
   </details>
 
   <footer>
-    Version <code>0.9</code> &mdash; 20 ao&ucirc;t 2026.
+    Version <code>1.0</code> &mdash; 20 ao&ucirc;t 2026.
     Cette page ne contient aucune donn&eacute;e m&eacute;tier, aucun chemin interne
     et aucun code d'acc&egrave;s.
   </footer>
@@ -429,7 +440,13 @@
       actif:true, reserve:true,
       desc:'Envoi des demandes de certificats aux communes, et relances : ' +
            'préparation des fichiers, lancement des traitements et consultation ' +
-           'des journaux.' }
+           'des journaux.' },
+
+    { id:'codes_fm', nom:'Codes FM', cat:'sig', ico:'calque',
+      actif:true, reserve:true,
+      desc:'Générateur de codes FM : construction du CSV et envoi vers FileMaker.',
+      // Action secondaire : un diagnostic, utile seulement quand ça coince.
+      secondaire:{ id:'codes_fm_test', libelle:'Tester la connexion' } }
   ];
 
   /* Outils repertories mais volontairement absents du launcher. Conserves ici
@@ -542,11 +559,24 @@
       ? '<span class="reserve" title="Un code d\'acc&egrave;s sera demand&eacute;">' +
         CADENAS + '<span class="reserve-txt">R&eacute;serv&eacute;</span></span>'
       : '';
+    // Action secondaire : un lien discret sous le bouton principal, pour une
+    // fonction d'appoint (diagnostic, ouverture de dossier...) qui ne merite
+    // pas sa propre tuile.
+    var second = '';
+    if (o.actif && o.secondaire) {
+      second = '<a class="action-bis" href="tbrlaunch://' + o.secondaire.id + '"' +
+               ' data-secondaire="' + o.secondaire.id + '">' +
+               echappe(o.secondaire.libelle) + '</a>';
+    }
+    var bloc = second
+      ? '<div class="actions-outil">' + action + second + '</div>'
+      : action;
+
     return '<div class="outil' + (o.actif ? '' : ' inactif') + '">' +
              '<div class="tete">' + icone(o.ico, taille) + marque + '</div>' +
              '<p class="nom">' + echappe(o.nom) + '</p>' +
              '<p class="desc">' + echappe(o.desc) + '</p>' +
-             action +
+             bloc +
            '</div>';
   }
 
@@ -670,7 +700,7 @@
 
   // Delegation : les tuiles sont regenerees a chaque changement de vue.
   elCatalogue.addEventListener('click', function (ev) {
-    if (ev.target.closest('a.action')) { marquerInitie(); }
+    if (ev.target.closest('a.action, a.action-bis')) { marquerInitie(); }
   });
 
   /* ------------------------------------------------- Code d'acces
@@ -702,11 +732,13 @@
       });
   }
 
-  function demandeCode(outil) {
-    outilDemande = outil;
-    document.getElementById('code-titre').textContent = outil.nom;
+  function demandeCode(outil, idALancer, titre) {
+    // idALancer peut differer de l'outil : une action secondaire porte son
+    // propre identifiant, mais elle est protegee par le meme code.
+    outilDemande = {id: idALancer || outil.id, nom: outil.nom};
+    document.getElementById('code-titre').textContent = titre || outil.nom;
     document.getElementById('code-soustitre').textContent =
-      'Cet outil est reserve. Saisissez le code d’acces pour le lancer.';
+      'Cet outil est reserve. Saisissez le code d’acces pour continuer.';
     elCode.value = '';
     elErreur.hidden = true;
     elVoile.hidden = false;
@@ -757,14 +789,21 @@
   });
 
   // Interception du clic sur un outil reserve, avant que le lien n'agisse.
+  // Couvre le bouton principal comme l'action secondaire : les deux sont
+  // protegees par le meme code.
   elCatalogue.addEventListener('click', function (ev) {
-    var lien = ev.target.closest('a.action');
+    var lien = ev.target.closest('a.action, a.action-bis');
     if (!lien) { return; }
     var tuile = lien.closest('.outil');
     var nom = tuile ? (tuile.querySelector('.nom') || {}).textContent : '';
     var outil = OUTILS.filter(function (o) { return o.nom === nom; })[0];
-    if (outil && outil.reserve) {
-      ev.preventDefault();
+    if (!outil || !outil.reserve) { return; }
+
+    ev.preventDefault();
+    var idSecondaire = lien.getAttribute('data-secondaire');
+    if (idSecondaire && outil.secondaire) {
+      demandeCode(outil, idSecondaire, outil.secondaire.libelle);
+    } else {
       demandeCode(outil);
     }
   });
