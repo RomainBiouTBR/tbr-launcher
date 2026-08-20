@@ -370,7 +370,12 @@
       actif:true, reserve:true,
       desc:'Génère la base d’un viewer QGIS à partir du téléchargement d’un PLU, ' +
            'd’un PLUi ou d’une Carte Communale depuis le GPU. Permet également de ' +
-           'comparer deux versions de documents.' }
+           'comparer deux versions de documents.' },
+
+    { id:'pdftopng', nom:'PDF vers PNG', cat:'doc', ico:'image',
+      actif:true, reserve:false,
+      desc:'Convertit des PDF en images PNG : zone à extraire tracée à la souris, ' +
+           'résolution et pages au choix, fond blanc effaçable.' }
   ];
 
   /* Outils repertories mais volontairement absents du launcher. Conserves ici
@@ -383,7 +388,6 @@
      comparate_gpu | Comparaison GPU       | sig    | comparer
      argiles       | Argiles 2026          | sig    | calque
      codes_fm      | Codes FM              | sig    | calque
-     pdftopng      | PDF vers PNG          | doc    | image
      certificats   | Certificats           | doc    | document
      yaml_auto     | YAML auto             | doc    | document
      secretariat   | Secretariat           | admin  | dossier
