@@ -391,7 +391,7 @@
   </details>
 
   <footer>
-    Version <code>1.0</code> &mdash; 20 ao&ucirc;t 2026.
+    Version <code>1.1</code> &mdash; 20 ao&ucirc;t 2026.
     Cette page ne contient aucune donn&eacute;e m&eacute;tier, aucun chemin interne
     et aucun code d'acc&egrave;s.
   </footer>
@@ -446,7 +446,13 @@
       actif:true, reserve:true,
       desc:'Générateur de codes FM : construction du CSV et envoi vers FileMaker.',
       // Action secondaire : un diagnostic, utile seulement quand ça coince.
-      secondaire:{ id:'codes_fm_test', libelle:'Tester la connexion' } }
+      secondaire:{ id:'codes_fm_test', libelle:'Tester la connexion' } },
+
+    { id:'cadastre', nom:'Cadastre Importer', cat:'sig', ico:'carte',
+      actif:true, reserve:true,
+      desc:'Import du cadastre EDIGEO vers PostgreSQL. Démarre un serveur ' +
+           'local : l’interface s’ouvre ensuite dans votre navigateur, et la ' +
+           'fenêtre noire doit rester ouverte pendant l’utilisation.' }
   ];
 
   /* Outils repertories mais volontairement absents du launcher. Conserves ici
