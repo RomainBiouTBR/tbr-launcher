@@ -230,6 +230,39 @@
     margin-top:30px;padding-top:16px;border-top:1px solid var(--bd);
     font-size:.8rem;color:var(--tx3);
   }
+
+  /* ---------- Fenetre de saisie du code d'acces ---------- */
+  .voile{
+    position:fixed;inset:0;background:rgba(22,32,46,.45);display:grid;
+    place-items:center;padding:24px;z-index:20;
+  }
+  .fiche{
+    background:var(--s);border:1px solid var(--bd);border-radius:var(--r);
+    box-shadow:0 14px 44px rgba(0,0,0,.24);padding:24px 26px;max-width:430px;width:100%;
+  }
+  .fiche h2{font-size:1.02rem;font-weight:600;margin:0 0 6px}
+  .fiche p{font-size:.88rem;color:var(--tx2);margin:0 0 16px}
+  .fiche label{
+    display:block;font-size:.74rem;font-weight:500;color:var(--tx2);
+    text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;
+  }
+  .fiche input{
+    width:100%;font-family:var(--f);font-size:1rem;letter-spacing:.14em;color:var(--tx);
+    padding:10px 12px;border:1px solid var(--bd2);border-radius:var(--rxs);
+    background:var(--s);outline:none;
+  }
+  .fiche input:focus{border-color:var(--t);box-shadow:0 0 0 3px var(--t-lt)}
+  .fiche .erreur{
+    font-size:.82rem;color:#dc2626;margin:9px 0 0;display:flex;align-items:center;gap:6px;
+  }
+  .fiche .actions{display:flex;gap:9px;margin-top:20px;justify-content:flex-end}
+  .fiche button{
+    font-family:var(--f);font-size:.86rem;font-weight:500;cursor:pointer;padding:9px 17px;
+    border-radius:var(--rxs);border:1px solid var(--bd2);background:var(--s);color:var(--tx2);
+  }
+  .fiche button:hover{border-color:var(--bd2);color:var(--tx)}
+  .fiche button.fort{background:var(--t);border-color:var(--t);color:#fff}
+  .fiche button.fort:hover{background:var(--t-dk)}
   :focus-visible{outline:2px solid var(--t);outline-offset:2px}
 </style>
 </head>
@@ -347,10 +380,25 @@
   </details>
 
   <footer>
-    Version <code>0.8</code> &mdash; 19 ao&ucirc;t 2026.
-    Cette page ne contient aucune donn&eacute;e m&eacute;tier ni aucun chemin interne.
+    Version <code>0.9</code> &mdash; 20 ao&ucirc;t 2026.
+    Cette page ne contient aucune donn&eacute;e m&eacute;tier, aucun chemin interne
+    et aucun code d'acc&egrave;s.
   </footer>
 
+</div>
+
+<div class="voile" id="voile" hidden>
+  <div class="fiche">
+    <h2 id="code-titre">Outil r&eacute;serv&eacute;</h2>
+    <p id="code-soustitre">Saisissez le code d'acc&egrave;s pour continuer.</p>
+    <label for="code-champ">Code d'acc&egrave;s</label>
+    <input type="password" id="code-champ" autocomplete="off" spellcheck="false">
+    <p class="erreur" id="code-erreur" hidden></p>
+    <div class="actions">
+      <button id="code-annuler">Annuler</button>
+      <button class="fort" id="code-valider">Lancer</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -623,6 +671,102 @@
   // Delegation : les tuiles sont regenerees a chaque changement de vue.
   elCatalogue.addEventListener('click', function (ev) {
     if (ev.target.closest('a.action')) { marquerInitie(); }
+  });
+
+  /* ------------------------------------------------- Code d'acces
+     Les outils marques "reserve" demandent un code. Ce code n'est PAS dans
+     cette page : on en calcule l'empreinte (SHA-256 sale) et on transmet
+     seulement cette empreinte au lanceur, qui la compare a celle du code
+     qu'il detient, sur le serveur de l'entreprise. Le code ne circule donc
+     jamais en clair et n'est stocke nulle part ici.                       */
+  var SEL = 'TBR-launcher-2026';
+  var elVoile = document.getElementById('voile');
+  var elCode = document.getElementById('code-champ');
+  var elErreur = document.getElementById('code-erreur');
+  var outilDemande = null;
+
+  function empreinte(code) {
+    var texte = SEL + ':' + String(code).trim().toLowerCase();
+    if (!(window.crypto && window.crypto.subtle && window.TextEncoder)) {
+      return Promise.reject(new Error('calcul indisponible'));
+    }
+    return window.crypto.subtle
+      .digest('SHA-256', new TextEncoder().encode(texte))
+      .then(function (tampon) {
+        var octets = new Uint8Array(tampon);
+        var hex = '';
+        for (var i = 0; i < octets.length; i++) {
+          hex += ('0' + octets[i].toString(16)).slice(-2);
+        }
+        return hex;
+      });
+  }
+
+  function demandeCode(outil) {
+    outilDemande = outil;
+    document.getElementById('code-titre').textContent = outil.nom;
+    document.getElementById('code-soustitre').textContent =
+      'Cet outil est reserve. Saisissez le code d’acces pour le lancer.';
+    elCode.value = '';
+    elErreur.hidden = true;
+    elVoile.hidden = false;
+    elCode.focus();
+  }
+
+  function fermeCode() {
+    elVoile.hidden = true;
+    outilDemande = null;
+    elCode.value = '';
+  }
+
+  function lance(id, jeton) {
+    marquerInitie();
+    // Le protocole est declenche comme un lien : c'est Windows qui prend
+    // le relais, la page ne navigue pas.
+    window.location.href = 'tbrlaunch://' + id + (jeton ? '/' + jeton : '');
+  }
+
+  function valideCode() {
+    if (!outilDemande) { return; }
+    var saisi = elCode.value;
+    if (!saisi.trim()) {
+      elErreur.hidden = false;
+      elErreur.textContent = 'Saisissez le code avant de valider.';
+      elCode.focus();
+      return;
+    }
+    var outil = outilDemande;
+    empreinte(saisi).then(
+      function (jeton) { fermeCode(); lance(outil.id, jeton); },
+      function () {
+        // Navigateur sans calcul d'empreinte : on lance sans, le lanceur
+        // demandera alors le code dans sa propre fenetre.
+        fermeCode(); lance(outil.id, null);
+      }
+    );
+  }
+
+  document.getElementById('code-valider').addEventListener('click', valideCode);
+  document.getElementById('code-annuler').addEventListener('click', fermeCode);
+  elCode.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') { ev.preventDefault(); valideCode(); }
+    if (ev.key === 'Escape') { ev.preventDefault(); fermeCode(); }
+  });
+  elVoile.addEventListener('click', function (ev) {
+    if (ev.target === elVoile) { fermeCode(); }
+  });
+
+  // Interception du clic sur un outil reserve, avant que le lien n'agisse.
+  elCatalogue.addEventListener('click', function (ev) {
+    var lien = ev.target.closest('a.action');
+    if (!lien) { return; }
+    var tuile = lien.closest('.outil');
+    var nom = tuile ? (tuile.querySelector('.nom') || {}).textContent : '';
+    var outil = OUTILS.filter(function (o) { return o.nom === nom; })[0];
+    if (outil && outil.reserve) {
+      ev.preventDefault();
+      demandeCode(outil);
+    }
   });
 
   /* ------------------------------------------------------- Diagnostic */
