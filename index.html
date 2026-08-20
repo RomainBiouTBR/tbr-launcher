@@ -44,14 +44,22 @@
     background:var(--t-lt);border:1px solid var(--t-mid);color:var(--t-dk);
   }
 
-  /* ---------- Bandeau d'information ---------- */
-  .info{
-    background:var(--gbg);border:1px solid var(--gbd);border-radius:var(--r);
-    padding:14px 18px;margin-bottom:20px;font-size:.9rem;color:var(--tx2);
-    display:flex;gap:12px;align-items:flex-start;
+  /* ---------- Bandeau d'accueil (nouveaux venus seulement) ---------- */
+  .bandeau{
+    background:var(--t-lt);border:1px solid var(--t-mid);border-radius:var(--rsm);
+    padding:11px 12px 11px 15px;margin-bottom:16px;font-size:.88rem;color:var(--tx2);
+    display:flex;gap:11px;align-items:center;
   }
-  .info svg{flex:0 0 auto;margin-top:2px;color:var(--green)}
-  .info strong{color:var(--tx);font-weight:500}
+  .bandeau > svg{flex:0 0 auto;color:var(--t-dk)}
+  .bandeau-txt{flex:1}
+  .bandeau strong{color:var(--t-dk);font-weight:600}
+  .bandeau a{color:var(--t-dk);font-weight:500;text-decoration:underline;text-underline-offset:2px}
+  .bandeau a:hover{color:var(--tx)}
+  .bandeau-x{
+    flex:0 0 auto;display:grid;place-items:center;width:26px;height:26px;cursor:pointer;
+    border:0;background:transparent;border-radius:var(--rxs);color:var(--t-dk);opacity:.65;
+  }
+  .bandeau-x:hover{opacity:1;background:var(--t-mid)}
 
   /* ---------- Barre d'outils ---------- */
   .barre{
@@ -153,7 +161,9 @@
     background:var(--s);border:1px solid var(--bd);border-radius:var(--r);
     box-shadow:var(--sh);padding:20px 22px;margin-top:22px;
   }
+  .card{scroll-margin-top:18px}
   .card h2{font-size:1rem;font-weight:600;margin:0 0 10px}
+  .card:target{border-color:var(--t);box-shadow:0 0 0 3px var(--t-lt),var(--sh)}
   .card p{margin:0 0 9px;font-size:.9rem;color:var(--tx2)}
   .card p:last-child{margin-bottom:0}
   .card strong{color:var(--tx);font-weight:500}
@@ -215,16 +225,22 @@
     <span class="badge">Version d'essai</span>
   </header>
 
-  <div class="info">
+  <!-- Bandeau d'accueil : affiche par JS uniquement si ce poste n'a jamais
+       servi a lancer un outil. Disparait definitivement au premier lancement
+       ou si l'utilisateur le ferme. -->
+  <div class="bandeau" id="bandeau" hidden>
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/>
+      <circle cx="12" cy="12" r="10"/><path d="M12 16v-5M12 8h.01"/>
     </svg>
-    <div>
-      Les outils se lancent <strong>sur votre poste</strong>, avec vos droits habituels, comme par un
-      double-clic. Cette page transmet seulement l'ordre de d&eacute;marrage : elle ne contient
-      aucune donn&eacute;e.
+    <div class="bandeau-txt">
+      <strong>Premi&egrave;re visite ?</strong> Ce poste doit &ecirc;tre autoris&eacute; une seule fois
+      pour que les boutons fonctionnent. <a href="#config">Voir la proc&eacute;dure</a>
     </div>
+    <button class="bandeau-x" id="bandeau-x" aria-label="Masquer ce message" title="Ne plus afficher">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
   </div>
 
   <div class="barre">
@@ -270,13 +286,16 @@
 
   <main id="catalogue" class="vue-cartes"></main>
 
-  <section class="card">
+  <section class="card" id="config">
     <h2>Premi&egrave;re utilisation sur ce poste</h2>
     <p>Pour que les boutons ci-dessus fonctionnent, une autorisation doit &ecirc;tre donn&eacute;e une seule
        fois sur chaque poste : lancez <code>INSTALLER.bat</code>, dans le dossier <code>LAUNCHER</code>
        du serveur de l'entreprise.</p>
     <p>Deux minutes, aucun mot de passe administrateur, aucun logiciel install&eacute;.
        Romain peut vous transmettre le chemin exact.</p>
+    <p>Les outils se lancent ensuite <strong>sur votre poste</strong>, avec vos droits habituels,
+       exactement comme par un double-clic. Cette page transmet seulement l'ordre de d&eacute;marrage :
+       elle ne contient aucune donn&eacute;e.</p>
     <p style="margin-top:15px">
       <a class="secondaire" href="tbrlaunch://test">V&eacute;rifier la configuration de ce poste</a>
     </p>
@@ -305,7 +324,7 @@
   </details>
 
   <footer>
-    Version <code>0.3</code> &mdash; 19 ao&ucirc;t 2026.
+    Version <code>0.4</code> &mdash; 19 ao&ucirc;t 2026.
     Cette page ne contient aucune donn&eacute;e m&eacute;tier ni aucun chemin interne.
   </footer>
 
@@ -513,6 +532,33 @@
   });
 
   dessine();
+
+  /* ----------------------------------------------- Bandeau d'accueil
+     Visible tant que ce poste n'a jamais servi a lancer un outil. Il
+     disparait definitivement au premier clic sur "Lancer" -- l'habitue
+     s'en debarrasse donc sans y penser -- ou s'il est ferme a la main.
+     Il n'est jamais affiche puis masque : on ne l'affiche que s'il faut,
+     pour eviter tout clignotement chez ceux qui l'ont deja vu.          */
+  var CLE_INITIE = 'tbr_launcher_initie';
+  var elBandeau = document.getElementById('bandeau');
+
+  function dejaInitie() {
+    try { return window.localStorage.getItem(CLE_INITIE) === '1'; }
+    catch (e) { return false; }
+  }
+  function marquerInitie() {
+    ecrire(CLE_INITIE, '1');
+    if (elBandeau) { elBandeau.hidden = true; }
+  }
+
+  if (elBandeau && !dejaInitie()) { elBandeau.hidden = false; }
+
+  document.getElementById('bandeau-x').addEventListener('click', marquerInitie);
+
+  // Delegation : les tuiles sont regenerees a chaque changement de vue.
+  elCatalogue.addEventListener('click', function (ev) {
+    if (ev.target.closest('a.action')) { marquerInitie(); }
+  });
 
   /* ------------------------------------------------------- Diagnostic */
   var ua = navigator.userAgent;
