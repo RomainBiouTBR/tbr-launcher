@@ -24,6 +24,8 @@
   }
   *{box-sizing:border-box}
   html{-webkit-text-size-adjust:100%}
+  /* Necessaire : un display:flex explicite prend le pas sur l'attribut hidden. */
+  [hidden]{display:none !important}
   body{
     margin:0;background:var(--bg);color:var(--tx);font-family:var(--f);
     font-size:15px;line-height:1.55;font-weight:400;-webkit-font-smoothing:antialiased;
@@ -324,7 +326,7 @@
   </details>
 
   <footer>
-    Version <code>0.4</code> &mdash; 19 ao&ucirc;t 2026.
+    Version <code>0.5</code> &mdash; 19 ao&ucirc;t 2026.
     Cette page ne contient aucune donn&eacute;e m&eacute;tier ni aucun chemin interne.
   </footer>
 
@@ -343,48 +345,29 @@
      Aucun chemin reseau ne doit figurer dans ce fichier.
      ===================================================================== */
   var OUTILS = [
-    { id:'viewer_plu', nom:'Viewer PLU / PLUi', cat:'sig', ico:'carte', actif:true,
-      desc:'Génère un viewer QGIS à partir d’un PLU ou d’un PLUi.' },
-
-    { id:'carte_viewer', nom:'Carte Viewer', cat:'sig', ico:'carte', actif:false,
-      desc:'Description à compléter.' },
-
-    { id:'psmv', nom:'Traitement PSMV', cat:'sig', ico:'carte', actif:false,
-      desc:'Traite les données PSMV téléchargées depuis le Géoportail de l’Urbanisme.' },
-
-    { id:'comparate_gpu', nom:'Comparaison GPU', cat:'sig', ico:'comparer', actif:false,
-      desc:'Compare deux versions d’un document du Géoportail de l’Urbanisme.' },
-
-    { id:'argiles', nom:'Argiles 2026', cat:'sig', ico:'calque', actif:false,
-      desc:'Remplace le thème « Argiles 2020 » par « Argiles 2026 ».' },
-
-    { id:'codes_fm', nom:'Codes FM', cat:'sig', ico:'calque', actif:false,
-      desc:'Générateur de codes FM, avec constructeur de CSV.' },
-
-    { id:'pdftopng', nom:'PDF vers PNG', cat:'doc', ico:'image', actif:false,
-      desc:'Convertit des PDF en images PNG : résolution, pages, recadrage.' },
-
-    { id:'certificats', nom:'Certificats', cat:'doc', ico:'document', actif:false,
-      desc:'Génération et envoi des certificats.' },
-
-    { id:'yaml_auto', nom:'YAML auto', cat:'doc', ico:'document', actif:false,
-      desc:'Déduit les correspondances nom → type et section à partir des YAML existants.' },
-
-    { id:'secretariat', nom:'Secrétariat', cat:'admin', ico:'dossier', actif:false,
-      desc:'Export DEM multi-feuilles, avec application des règles métier.' },
-
-    { id:'rangement', nom:'Rangement dossiers', cat:'admin', ico:'dossier', actif:false,
-      desc:'Description à compléter.' },
-
-    { id:'ticketing', nom:'GéoTickets', cat:'admin', ico:'ticket', actif:false,
-      desc:'Gestion de tickets pour urbanistes et géomaticiens.' },
-
-    { id:'veille_auto', nom:'Veille presse', cat:'veille', ico:'oeil', actif:false,
-      desc:'Connexion automatique aux kiosques de presse pour la veille.' },
-
-    { id:'automatisation', nom:'Automatisation', cat:'veille', ico:'engrenage', actif:false,
-      desc:'Description à compléter.' }
+    { id:'viewer_plu', nom:'Viewer PLU / PLUi / CC', cat:'sig', ico:'carte', actif:true,
+      desc:'Génère un viewer QGIS à partir d’un PLU, d’un PLUi ou d’une Carte Communale.' }
   ];
+
+  /* Outils repertories mais volontairement absents du launcher. Conserves ici
+     pour pouvoir en rajouter un en une ligne, sans avoir a tout reinventorier.
+     Pour en activer un : le deplacer dans OUTILS ci-dessus, mettre actif:true,
+     et ajouter l'action correspondante dans l'allowlist du lanceur .bat.
+
+     carte_viewer  | Carte Viewer          | sig    | carte
+     psmv          | Traitement PSMV       | sig    | carte
+     comparate_gpu | Comparaison GPU       | sig    | comparer
+     argiles       | Argiles 2026          | sig    | calque
+     codes_fm      | Codes FM              | sig    | calque
+     pdftopng      | PDF vers PNG          | doc    | image
+     certificats   | Certificats           | doc    | document
+     yaml_auto     | YAML auto             | doc    | document
+     secretariat   | Secretariat           | admin  | dossier
+     rangement     | Rangement dossiers    | admin  | dossier
+     ticketing     | GeoTickets            | admin  | ticket
+     veille_auto   | Veille presse         | veille | oeil
+     automatisation| Automatisation        | veille | engrenage
+  */
 
   var CATEGORIES = [
     { id:'tous',   nom:'Tous' },
@@ -393,6 +376,12 @@
     { id:'admin',  nom:'Secrétariat' },
     { id:'veille', nom:'Veille' }
   ];
+
+  /* Seuils d'apparition des commandes : inutile d'afficher une recherche ou
+     des filtres quand il n'y a qu'un outil. Tout reapparait tout seul au fur
+     et a mesure que le catalogue se remplit. */
+  var SEUIL_RECHERCHE = 5;
+  var SEUIL_VUES = 3;
 
   /* Icones SVG (traits, monochromes, sans dependance externe) */
   var CHEMINS = {
@@ -469,6 +458,12 @@
            '</div>';
   }
 
+  function categoriesRepresentees() {
+    var vues = {};
+    OUTILS.forEach(function (o) { vues[o.cat] = 1; });
+    return Object.keys(vues);
+  }
+
   function dessine() {
     elCatalogue.className = 'vue-' + etat.vue;
 
@@ -479,9 +474,11 @@
       return;
     }
 
-    // Groupe par categorie, sauf si une seule categorie est demandee
+    // Titres de rubrique seulement s'il y a plusieurs rubriques a distinguer.
+    var groupe = (etat.cat === 'tous') && (categoriesRepresentees().length > 1);
     var html = '';
-    if (etat.cat === 'tous') {
+
+    if (groupe) {
       CATEGORIES.forEach(function (c) {
         if (c.id === 'tous') { return; }
         var lot = visibles.filter(function (o) { return o.cat === c.id; });
@@ -494,6 +491,29 @@
              visibles.map(tuile).join('') + '</div></section>';
     }
     elCatalogue.innerHTML = html;
+  }
+
+  /* Affiche recherche, filtres et selecteur de vues seulement quand le
+     catalogue est assez fourni pour qu'ils servent a quelque chose. */
+  function adapteBarre() {
+    var n = OUTILS.length;
+    var nCat = categoriesRepresentees().length;
+
+    var elRecherche = document.querySelector('.recherche');
+    var elVues = document.querySelector('.vues');
+    var elBarre = document.querySelector('.barre');
+
+    var montreRecherche = n >= SEUIL_RECHERCHE;
+    var montreFiltres = nCat > 1;
+    var montreVues = n >= SEUIL_VUES;
+
+    elRecherche.hidden = !montreRecherche;
+    elFiltres.hidden = !montreFiltres;
+    elVues.hidden = !montreVues;
+    elBarre.hidden = !(montreRecherche || montreFiltres || montreVues);
+
+    // Si le selecteur de vues est masque, on impose la vue la plus lisible.
+    if (!montreVues) { etat.vue = 'cartes'; }
   }
 
   /* --------------------------------------------------------- Interactions */
@@ -531,6 +551,7 @@
     dessine();
   });
 
+  adapteBarre();
   dessine();
 
   /* ----------------------------------------------- Bandeau d'accueil
