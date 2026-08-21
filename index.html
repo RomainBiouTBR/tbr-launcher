@@ -151,7 +151,25 @@
     color:var(--amber);background:var(--abg);border:1px solid #fde68a;
     border-radius:999px;padding:3px 9px;white-space:nowrap;
   }
+  /* Rubrique deja deverrouillee : meme pastille, cadenas ouvert et vert. */
+  .reserve.ouvert{color:var(--green);background:var(--gbg);border-color:var(--gbd)}
   .cadenas{flex:0 0 auto}
+
+  /* ---------- Bandeau des rubriques deverrouillees ---------- */
+  .verrous{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    margin:0 0 16px;padding:10px 14px;font-size:.83rem;
+    color:var(--green);background:var(--gbg);
+    border:1px solid var(--gbd);border-radius:var(--rsm);
+  }
+  .verrous .txt{flex:1;min-width:180px}
+  .verrous b{font-weight:600}
+  .verrous button{
+    font-family:var(--f);font-size:.8rem;font-weight:500;cursor:pointer;
+    padding:5px 12px;border-radius:999px;
+    border:1px solid var(--gbd);background:var(--s);color:var(--green);
+  }
+  .verrous button:hover{border-color:var(--green);background:var(--gbg)}
   /* En affichage compact, on ne garde que le cadenas. */
   .vue-icones .reserve-txt,.vue-liste .reserve-txt{display:none}
   .vue-icones .reserve,.vue-liste .reserve{padding:4px;border-radius:50%;gap:0}
@@ -348,6 +366,13 @@
     </div>
   </div>
 
+  <!-- Rappelle les rubriques ouvertes et permet de les refermer tout de
+       suite, sans attendre la fin de la journee. Affiche par JS. -->
+  <div class="verrous" id="verrous" hidden>
+    <span class="txt" id="verrous-txt"></span>
+    <button type="button" id="verrous-fermer">Verrouiller</button>
+  </div>
+
   <main id="catalogue" class="vue-cartes"></main>
 
   <section class="card" id="config">
@@ -489,11 +514,22 @@
      automatisation| Automatisation        | veille | engrenage
   */
 
+  /* "verrou" designe le groupe de deverrouillage de la rubrique : un code
+     saisi une fois ouvre tous ses outils jusqu'a la fin de la journee. Le
+     code lui-meme n'est PAS ici -- seule son empreinte est calculee puis
+     transmise au lanceur, qui la compare a celle du code qu'il detient.
+     Deux rubriques de verrous differents restent cloisonnees : le
+     secretariat n'ouvre pas les outils SIG, et inversement.
+     Une rubrique sans "verrou" est en acces libre.
+     Urbanisme est declaree sans outil : sa chip n'apparaitra donc pas, mais
+     le groupe 'urba' est pret pour un premier outil urbaniste, qui aura son
+     propre code dans le lanceur. */
   var CATEGORIES = [
     { id:'tous',   nom:'Tous' },
-    { id:'sig',    nom:'SIG / Urbanisme' },
+    { id:'sig',    nom:'SIG',         verrou:'sig' },
+    { id:'urba',   nom:'Urbanisme',   verrou:'urba' },
     { id:'doc',    nom:'Documents' },
-    { id:'admin',  nom:'Secrétariat' },
+    { id:'admin',  nom:'Secrétariat', verrou:'certificats' },
     { id:'veille', nom:'Veille' }
   ];
 
@@ -546,6 +582,81 @@
   };
   if (!CATEGORIES.some(function (c) { return c.id === etat.cat; })) { etat.cat = 'tous'; }
 
+  /* ------------------------------------------------- Verrous par rubrique
+     Un code saisi une fois ouvre toute sa rubrique jusqu'a la fin de la
+     journee. Ce qui est retenu dans le navigateur est l'EMPREINTE, jamais le
+     code : meme en lisant le stockage local, on ne remonte pas au code.
+
+     La page ne peut pas verifier le code -- elle ne contient aucune
+     empreinte de reference, et c'est voulu : publier celle d'un code court
+     permettrait de le retrouver hors ligne. Le deverrouillage est donc
+     optimiste, et c'est le lanceur qui refusera un code errone. D'ou le
+     bouton « Verrouiller », pour effacer et retaper.                      */
+  var PREFIXE_VERROU = 'tbr_launcher_verrou_';
+
+  function finDeJournee() {
+    var d = new Date();
+    d.setHours(23, 59, 59, 999);
+    return d.getTime();
+  }
+
+  function verrouDe(o) {
+    var cat = CATEGORIES.filter(function (c) { return c.id === o.cat; })[0];
+    if (cat && cat.verrou) { return cat.verrou; }
+    // Rubrique sans verrou mais outil marque reserve : il garde son propre
+    // groupe, donc son propre code, plutot que de devenir libre par erreur.
+    return o.reserve ? 'outil:' + o.id : null;
+  }
+
+  function estReserve(o) {
+    return o.reserve === undefined ? !!verrouDe(o) : !!o.reserve;
+  }
+
+  function jetonRetenu(groupe) {
+    if (!groupe) { return null; }
+    try {
+      var brut = window.localStorage.getItem(PREFIXE_VERROU + groupe);
+      if (!brut) { return null; }
+      var v = JSON.parse(brut);
+      if (!v || !v.jeton || !v.exp || Date.now() > v.exp) {
+        window.localStorage.removeItem(PREFIXE_VERROU + groupe);
+        return null;
+      }
+      return v.jeton;
+    } catch (e) { return null; }
+  }
+
+  function retiensJeton(groupe, jeton) {
+    if (!groupe || !jeton) { return; }
+    try {
+      window.localStorage.setItem(PREFIXE_VERROU + groupe,
+        JSON.stringify({ jeton: jeton, exp: finDeJournee() }));
+    } catch (e) {}
+  }
+
+  function reverrouille(groupe) {
+    try {
+      if (groupe) {
+        window.localStorage.removeItem(PREFIXE_VERROU + groupe);
+      } else {
+        CATEGORIES.forEach(function (c) {
+          if (c.verrou) { window.localStorage.removeItem(PREFIXE_VERROU + c.verrou); }
+        });
+        OUTILS.forEach(function (o) {
+          window.localStorage.removeItem(PREFIXE_VERROU + 'outil:' + o.id);
+        });
+      }
+    } catch (e) {}
+  }
+
+  /* Rubriques deverrouillees a cet instant, et qui ont au moins un outil. */
+  function rubriquesOuvertes() {
+    return CATEGORIES.filter(function (c) {
+      return c.verrou && jetonRetenu(c.verrou) &&
+             OUTILS.some(function (o) { return o.cat === c.id; });
+    });
+  }
+
   /* ------------------------------------------------------------- Rendu */
   var elCatalogue = document.getElementById('catalogue');
   var elFiltres = document.getElementById('filtres');
@@ -570,6 +681,12 @@
     'aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/>' +
     '<path d="M8 11V7a4 4 0 018 0v4"/></svg>';
 
+  // Meme cadenas, anse ouverte : la rubrique a deja recu son code.
+  var CADENAS_OUVERT = '<svg class="cadenas" width="12" height="12" viewBox="0 0 24 24" fill="none" ' +
+    'stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" ' +
+    'aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/>' +
+    '<path d="M8 11V7a4 4 0 0 1 7.6 -1.4"/></svg>';
+
   function tuile(o) {
     var taille = etat.vue === 'icones' ? 26 : (etat.vue === 'liste' ? 18 : 22);
     var action = o.actif
@@ -577,10 +694,16 @@
       : '<span class="action">&agrave; venir</span>';
     // Signale un outil dont le lanceur demandera un code. Le code lui-meme
     // n'est pas ici : il est dans le lanceur, sur le serveur de l'entreprise.
-    var marque = o.reserve
-      ? '<span class="reserve" title="Un code d\'acc&egrave;s sera demand&eacute;">' +
-        CADENAS + '<span class="reserve-txt">R&eacute;serv&eacute;</span></span>'
-      : '';
+    // Si la rubrique a deja recu son code aujourd'hui, la pastille passe au
+    // cadenas ouvert : le clic partira alors sans redemander la saisie.
+    var marque = '';
+    if (estReserve(o)) {
+      marque = jetonRetenu(verrouDe(o))
+        ? '<span class="reserve ouvert" title="Rubrique d&eacute;verrouill&eacute;e jusqu&rsquo;&agrave; ce soir">' +
+          CADENAS_OUVERT + '<span class="reserve-txt">Ouvert</span></span>'
+        : '<span class="reserve" title="Un code d\'acc&egrave;s sera demand&eacute;">' +
+          CADENAS + '<span class="reserve-txt">R&eacute;serv&eacute;</span></span>';
+    }
     // Action secondaire : un lien discret sous le bouton principal, pour une
     // fonction d'appoint (diagnostic, ouverture de dossier...) qui ne merite
     // pas sa propre tuile.
@@ -608,8 +731,29 @@
     return Object.keys(vues);
   }
 
+  /* Bandeau vert : quelles rubriques sont ouvertes, et de quoi les refermer
+     avant la fin de la journee -- utile sur un poste partage, ou quand on
+     s'est trompe de code. */
+  function dessineVerrous() {
+    var el = document.getElementById('verrous');
+    var txt = document.getElementById('verrous-txt');
+    if (!el || !txt) { return; }
+    var ouvertes = rubriquesOuvertes();
+    if (!ouvertes.length) { el.hidden = true; return; }
+    var noms = ouvertes.map(function (c) { return c.nom; });
+    var liste = noms.length === 1
+      ? '<b>' + echappe(noms[0]) + '</b>'
+      : '<b>' + noms.slice(0, -1).map(echappe).join('</b>, <b>') + '</b> et <b>' +
+        echappe(noms[noms.length - 1]) + '</b>';
+    txt.innerHTML = 'Code d&eacute;j&agrave; saisi pour ' + liste +
+      ' : les outils de ' + (noms.length === 1 ? 'cette rubrique' : 'ces rubriques') +
+      ' se lancent sans le redemander, jusqu&rsquo;&agrave; ce soir.';
+    el.hidden = false;
+  }
+
   function dessine() {
     elCatalogue.className = 'vue-' + etat.vue;
+    dessineVerrous();
 
     var visibles = OUTILS.filter(correspond);
 
@@ -661,7 +805,15 @@
   }
 
   /* --------------------------------------------------------- Interactions */
-  elFiltres.innerHTML = CATEGORIES.map(function (c) {
+  /* Une rubrique declaree mais encore sans outil n'a pas de chip : elle
+     n'afficherait qu'un « Aucun outil ne correspond ». Elle reste utile dans
+     CATEGORIES pour son groupe de verrou. */
+  var CATS_VISIBLES = CATEGORIES.filter(function (c) {
+    return c.id === 'tous' || categoriesRepresentees().indexOf(c.id) !== -1;
+  });
+  if (!CATS_VISIBLES.some(function (c) { return c.id === etat.cat; })) { etat.cat = 'tous'; }
+
+  elFiltres.innerHTML = CATS_VISIBLES.map(function (c) {
     return '<button class="filtre" data-cat="' + c.id + '" aria-pressed="' +
            (c.id === etat.cat) + '">' + c.nom + '</button>';
   }).join('');
@@ -757,10 +909,15 @@
   function demandeCode(outil, idALancer, titre) {
     // idALancer peut differer de l'outil : une action secondaire porte son
     // propre identifiant, mais elle est protegee par le meme code.
-    outilDemande = {id: idALancer || outil.id, nom: outil.nom};
+    var groupe = verrouDe(outil);
+    var cat = CATEGORIES.filter(function (c) { return c.id === outil.cat; })[0];
+    outilDemande = {id: idALancer || outil.id, nom: outil.nom, groupe: groupe};
     document.getElementById('code-titre').textContent = titre || outil.nom;
     document.getElementById('code-soustitre').textContent =
-      'Cet outil est reserve. Saisissez le code d’acces pour continuer.';
+      (cat && cat.verrou)
+        ? 'Saisissez le code de la rubrique ' + cat.nom +
+          '. Il ouvrira ses outils jusqu’à ce soir, sans être redemandé.'
+        : 'Cet outil est reserve. Saisissez le code d’acces pour continuer.';
     elCode.value = '';
     elErreur.hidden = true;
     elVoile.hidden = false;
@@ -791,7 +948,14 @@
     }
     var outil = outilDemande;
     empreinte(saisi).then(
-      function (jeton) { fermeCode(); lance(outil.id, jeton); },
+      function (jeton) {
+        // L'empreinte est retenue pour toute la rubrique : c'est elle, et
+        // jamais le code, qui reste dans le navigateur.
+        retiensJeton(outil.groupe, jeton);
+        fermeCode();
+        dessine();
+        lance(outil.id, jeton);
+      },
       function () {
         // Navigateur sans calcul d'empreinte : on lance sans, le lanceur
         // demandera alors le code dans sa propre fenetre.
@@ -819,15 +983,27 @@
     var tuile = lien.closest('.outil');
     var nom = tuile ? (tuile.querySelector('.nom') || {}).textContent : '';
     var outil = OUTILS.filter(function (o) { return o.nom === nom; })[0];
-    if (!outil || !outil.reserve) { return; }
+    if (!outil || !estReserve(outil)) { return; }
 
     ev.preventDefault();
     var idSecondaire = lien.getAttribute('data-secondaire');
-    if (idSecondaire && outil.secondaire) {
-      demandeCode(outil, idSecondaire, outil.secondaire.libelle);
-    } else {
+    var idALancer = (idSecondaire && outil.secondaire) ? idSecondaire : outil.id;
+
+    // Rubrique deja ouverte aujourd'hui : on repart avec la meme empreinte,
+    // sans rouvrir la fenetre de saisie.
+    var jeton = jetonRetenu(verrouDe(outil));
+    if (jeton) { lance(idALancer, jeton); return; }
+
+    if (idALancer === outil.id) {
       demandeCode(outil);
+    } else {
+      demandeCode(outil, idSecondaire, outil.secondaire.libelle);
     }
+  });
+
+  document.getElementById('verrous-fermer').addEventListener('click', function () {
+    reverrouille(null);
+    dessine();
   });
 
   /* ------------------------------------------------------- Diagnostic */
