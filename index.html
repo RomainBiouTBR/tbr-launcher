@@ -391,7 +391,7 @@
   </details>
 
   <footer>
-    Version <code>1.3</code> &mdash; 20 ao&ucirc;t 2026.
+    Version <code>1.4</code> &mdash; 21 ao&ucirc;t 2026.
     Cette page ne contient aucune donn&eacute;e m&eacute;tier, aucun chemin interne
     et aucun code d'acc&egrave;s.
   </footer>
@@ -464,7 +464,14 @@
       actif:true, reserve:true,
       desc:'Traite une archive PSMV téléchargée sur le GPU : les pièces écrites ' +
            'sont regroupées, les données géographiques découpées en couches ' +
-           'stylées prêtes pour QGIS. Un bouton ouvre ensuite chaque dossier.' }
+           'stylées prêtes pour QGIS. Un bouton ouvre ensuite chaque dossier.' },
+
+    { id:'organisation', nom:'Organisation Dossier', cat:'sig', ico:'dossier',
+      actif:true, reserve:true,
+      desc:'Cinq contrôles sur les dossiers commune d’un département : ' +
+           'rangement, comparaison avec les archives, détection des images et ' +
+           'des .tif, doublons PLUi. Chaque contrôle produit un rapport HTML, ' +
+           'et rien n’est modifié sans confirmation.' }
   ];
 
   /* Outils repertories mais volontairement absents du launcher. Conserves ici
@@ -477,7 +484,6 @@
      codes_fm      | Codes FM              | sig    | calque
      yaml_auto     | YAML auto             | doc    | document
      secretariat   | Secretariat           | admin  | dossier
-     rangement     | Rangement dossiers    | admin  | dossier
      ticketing     | GeoTickets            | admin  | ticket
      veille_auto   | Veille presse         | veille | oeil
      automatisation| Automatisation        | veille | engrenage
